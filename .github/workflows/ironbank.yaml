@@ -6,7 +6,7 @@ name: Synchronize Ironbank image mirror
     branches:
     - main
     paths:
-    - src/ironbank/image.manifest
+    - src/ironbank/**
 
 env:
   REGISTRY: ghcr.io

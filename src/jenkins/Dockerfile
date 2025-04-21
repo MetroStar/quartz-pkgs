@@ -1,4 +1,4 @@
-ARG JENKINS_VERSION=2.488-jdk17
+ARG JENKINS_VERSION=2.506-jdk17
 
 FROM registry1.dso.mil/ironbank/opensource/jenkins/jenkins:${JENKINS_VERSION}
 
@@ -11,4 +11,4 @@ RUN chmod +x /usr/bin/jenkins-plugin-cli && \
     jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins/plugins.txt --verbose && \
     chown jenkins:jenkins /usr/share/jenkins/ref/plugins/*.*
 
-USER jenkins
+# USER jenkins

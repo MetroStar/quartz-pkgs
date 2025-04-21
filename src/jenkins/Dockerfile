@@ -11,4 +11,4 @@ RUN chmod +x /usr/bin/jenkins-plugin-cli && \
     jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins/plugins.txt --verbose && \
     chown jenkins:jenkins /usr/share/jenkins/ref/plugins/*.*
 
-# USER jenkins
+USER jenkins

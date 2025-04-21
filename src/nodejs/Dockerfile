@@ -1,4 +1,4 @@
-ARG NODEJS_VERSION=20.18.2-slim
+ARG NODEJS_VERSION=20.19.0-slim
 
 FROM registry1.dso.mil/ironbank/opensource/nodejs/nodejs20:${NODEJS_VERSION}
 

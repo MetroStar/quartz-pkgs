@@ -1,4 +1,4 @@
-name: Synchronize Ironbank image mirror
+name: Synchronize Quartz image mirror
 
 'on':
   workflow_dispatch: {}
@@ -10,7 +10,7 @@ name: Synchronize Ironbank image mirror
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_REPOSITORY: ${{ github.repository }}
   MIRRORED_REGISTRIES: registry1.dso.mil registry.dso.mil quay.io
 
 jobs:
@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      suffix: ${{ steps.set-matrix.outputs.suffix }}
     steps:
       - name: Log in to the Github Packages container registry
         uses: docker/login-action@v3
@@ -33,17 +34,35 @@ jobs:
         run : |
           sync=""
           newline=$'\n'
-          for src_tag in $(cat src/ironbank/image-manifest.json | grep -E "^(${MIRRORED_REGISTRIES// /|})"); do
-            dest_tag=$(echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')
-            new_tag=$(echo ${src_tag} | sed "s;^\(${MIRRORED_REGISTRIES// /\\|}\);${dest_tag};g")
-            docker buildx imagetools inspect ${new_tag} > /dev/null 2>&1 && true
-            if [[ $? -ne 0 ]]; then
-              echo "Adding ${src_tag} to sync matrix"
-              sync+=${src_tag}${newline}
-            else
-              echo "Skipping ${src_tag}"
+
+          echo "suffix=$(date +'%Y%m%d-%H%M')" >> $GITHUB_OUTPUT
+
+          for obj in $(jq -rc '.[]' src/ironbank/image-manifest.json); do
+            src_tag=$(jq -r '.source' <<< "$obj")
+
+            if [ ! $(grep -E "^(${MIRRORED_REGISTRIES// /|})" <<< "$src_tag") ]; then
+              echo "Skipping ${src_tag}, not included in mirrored source registries"
+              continue
             fi
+
+            clobber=$(jq -r '.clobber' <<< "$obj")
+
+            # if clobber is set to true, doesn't matter if the image exists already, skip the check
+            if [ "${clobber}" != "true" ]; then
+              dest_tag=$(echo ${REGISTRY}/${IMAGE_REPOSITORY} | tr '[:upper:]' '[:lower:]')
+              new_tag=$(echo ${src_tag} | sed "s;^\(${MIRRORED_REGISTRIES// /\\|}\);${dest_tag};g")
+
+              docker buildx imagetools inspect ${new_tag} > /dev/null 2>&1 && true
+              if [[ $? -eq 0 ]]; then
+                echo "Skipping ${src_tag}, already synced"
+                continue    
+              fi
+            fi
+
+            echo "Adding ${src_tag} to sync matrix"
+            sync+=${src_tag}${newline}
           done
+
           echo "matrix=$(echo "${sync}" | jq -R -s -c 'split("\n")[:-1] | [ . [] | if length > 0 then . else empty end ]')" >> $GITHUB_OUTPUT
 
   sync-image:
@@ -79,9 +98,13 @@ jobs:
       - name: Sync ${{ matrix.manifest }}
         run: |
           src_tag=${{ matrix.manifest }}
-          dest_tag=$(echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')
+          dest_tag=$(echo ${REGISTRY}/${IMAGE_REPOSITORY} | tr '[:upper:]' '[:lower:]')
           new_tag=$(echo ${src_tag} | sed "s;^\(${MIRRORED_REGISTRIES// /\\|}\);${dest_tag};g")
+          suffix=${{ needs.generate-matrix.outputs.suffix }}
+
           docker pull ${src_tag}
           docker tag ${src_tag} ${new_tag}
+          docker tag ${src_tag} ${new_tag}-${suffix}
           docker push ${new_tag}
+          docker push ${new_tag}-${suffix}
           

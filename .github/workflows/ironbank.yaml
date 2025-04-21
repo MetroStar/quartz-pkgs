@@ -33,7 +33,7 @@ jobs:
         run : |
           sync=""
           newline=$'\n'
-          for src_tag in $(cat image.manifest | grep -E "^(${MIRRORED_REGISTRIES// /|})"); do
+          for src_tag in $(cat src/ironbank/image-manifest.json | grep -E "^(${MIRRORED_REGISTRIES// /|})"); do
             dest_tag=$(echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')
             new_tag=$(echo ${src_tag} | sed "s;^\(${MIRRORED_REGISTRIES// /\\|}\);${dest_tag};g")
             docker buildx imagetools inspect ${new_tag} > /dev/null 2>&1 && true

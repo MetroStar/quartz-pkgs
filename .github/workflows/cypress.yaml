@@ -1,0 +1,80 @@
+name: Cypress image
+
+'on':
+  workflow_dispatch:
+    inputs:
+      cypress_version:
+        description: 'Cypress version to build'
+        required: true
+        default: 'default'
+        type: string
+  push:
+    branches:
+    - main
+    paths:
+    - src/cypress/**
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    name: Build image
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:        
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Set variables
+      run: |
+        if [ "${{ inputs.cypress_version }}" == "" ] || [ "${{ inputs.cypress_version }}" == "default" ]; then
+          CYPRESS_VERSION=$(sed -n 's/^ARG BASE_TAG=//p' src/cypress/Dockerfile)
+        else
+          CYPRESS_VERSION=${{ inputs.cypress_version }}
+        fi
+        echo "CYPRESS_VERSION=$CYPRESS_VERSION" >> $GITHUB_ENV
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to the Github Packages container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Log in to the Ironbank container registry
+      uses: docker/login-action@v3
+      with:
+        registry: registry1.dso.mil
+        username: ${{ secrets.IRONBANK_USERNAME }}
+        password: ${{ secrets.IRONBANK_PASSWORD }}
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/cypress
+        tags: |
+          type=raw,value=${{ env.CYPRESS_VERSION }}-{{date 'YYYYMMDD-HHmm'}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: src/cypress
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          BASE_TAG=${{ env.CYPRESS_VERSION }}

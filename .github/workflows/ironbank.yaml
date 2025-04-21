@@ -1,0 +1,87 @@
+name: Synchronize Ironbank image mirror
+
+'on':
+  workflow_dispatch: {}
+  push:
+    branches:
+    - main
+    paths:
+    - src/ironbank/image.manifest
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  MIRRORED_REGISTRIES: registry1.dso.mil registry.dso.mil quay.io
+
+jobs:
+  generate-matrix:
+    name: Generate Job Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Log in to the Github Packages container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          logout: true
+        
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run : |
+          sync=""
+          newline=$'\n'
+          for src_tag in $(cat image.manifest | grep -E "^(${MIRRORED_REGISTRIES// /|})"); do
+            dest_tag=$(echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')
+            new_tag=$(echo ${src_tag} | sed "s;^\(${MIRRORED_REGISTRIES// /\\|}\);${dest_tag};g")
+            docker buildx imagetools inspect ${new_tag} > /dev/null 2>&1 && true
+            if [[ $? -ne 0 ]]; then
+              echo "Adding ${src_tag} to sync matrix"
+              sync+=${src_tag}${newline}
+            else
+              echo "Skipping ${src_tag}"
+            fi
+          done
+          echo "matrix=$(echo "${sync}" | jq -R -s -c 'split("\n")[:-1] | [ . [] | if length > 0 then . else empty end ]')" >> $GITHUB_OUTPUT
+
+  sync-image:
+    name: Sync image ${{ matrix.manifest }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    if: needs.generate-matrix.outputs.matrix != ''
+    needs: [generate-matrix]
+    strategy:
+      fail-fast: false
+      max-parallel: 5 # most requests hit ironbank, might get throttled
+      matrix:
+        manifest: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+    steps:
+      - name: Log in to the Github Packages container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          logout: true
+
+      - name: Log in to the Ironbank container registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry1.dso.mil
+          username: ${{ secrets.IRONBANK_USERNAME }}
+          password: ${{ secrets.IRONBANK_PASSWORD }}
+          logout: true
+
+      - name: Sync ${{ matrix.manifest }}
+        run: |
+          src_tag=${{ matrix.manifest }}
+          dest_tag=$(echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')
+          new_tag=$(echo ${src_tag} | sed "s;^\(${MIRRORED_REGISTRIES// /\\|}\);${dest_tag};g")
+          docker pull ${src_tag}
+          docker tag ${src_tag} ${new_tag}
+          docker push ${new_tag}
+          

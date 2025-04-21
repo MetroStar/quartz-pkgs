@@ -1,0 +1,80 @@
+name: nodejs image
+
+'on':
+  workflow_dispatch:
+    inputs:
+      nodejs_version:
+        description: 'NodeJS 20 version to build'
+        required: true
+        default: 'default'
+        type: string
+  push:
+    branches:
+    - main
+    paths:
+    - src/nodejs/**
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    name: Build image
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:        
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Set variables
+      run: |
+        if [ "${{ inputs.nodejs_version }}" == "" ] || [ "${{ inputs.nodejs_version }}" == "default" ]; then
+          NODEJS_VERSION=$(sed -n 's/^ARG NODEJS_VERSION=//p' src/nodejs/Dockerfile)
+        else
+          NODEJS_VERSION=${{ inputs.nodejs_version }}
+        fi
+        echo "NODEJS_VERSION=$NODEJS_VERSION" >> $GITHUB_ENV
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to the Github Packages container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Log in to the Ironbank container registry
+      uses: docker/login-action@v3
+      with:
+        registry: registry1.dso.mil
+        username: ${{ secrets.IRONBANK_USERNAME }}
+        password: ${{ secrets.IRONBANK_PASSWORD }}
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/nodejs
+        tags: |
+          type=raw,value=${{ env.NODEJS_VERSION }}-{{date 'YYYYMMDD-HHmm'}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: src/nodejs
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          NODEJS_VERSION=${{ env.NODEJS_VERSION }}

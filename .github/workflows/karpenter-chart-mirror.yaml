@@ -42,4 +42,4 @@ jobs:
 
         DESTINATION=$(echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')
         helm push karpenter-${{ inputs.karpenter_version }}.tgz oci://${DESTINATION}
-        helm push karpenter-${{ inputs.karpenter_version }}-crd.tgz oci://${DESTINATION}
+        helm push karpenter-crd-${{ inputs.karpenter_version }}.tgz oci://${DESTINATION}

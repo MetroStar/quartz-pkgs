@@ -35,6 +35,7 @@ pipeline-graph-view:443.v042b_a_f2fda_c1
 pipeline-stage-view:2.37
 pipeline-utility-steps:2.19.0
 s3:496.v320cdd5a_1f65
+s3-jobcacher-storage:16.v1f404a_3a_2377
 scm-filter-branch-pr:222.v72301ecb_a_ee7
 sonar:2.18
 ssh-slaves:3.1031.v72c6b_883b_869

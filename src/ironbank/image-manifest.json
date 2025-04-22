@@ -204,10 +204,6 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/big-bang/sonarqube-10:10.6.0-community",
-    "clobber": false
-  },
-  {
     "source": "registry1.dso.mil/ironbank/big-bang/sonarqube-10:10.7.0-community",
     "clobber": false
   },

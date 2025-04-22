@@ -38,6 +38,8 @@ jobs:
     - name: Pull and push helm chart
       run: |
         helm pull --version="${{ inputs.karpenter_version }}" oci://public.ecr.aws/karpenter/karpenter
+        helm pull --version="${{ inputs.karpenter_version }}" oci://public.ecr.aws/karpenter/karpenter-crd
 
         DESTINATION=$(echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')
         helm push karpenter-${{ inputs.karpenter_version }}.tgz oci://${DESTINATION}
+        helm push karpenter-${{ inputs.karpenter_version }}-crd.tgz oci://${DESTINATION}

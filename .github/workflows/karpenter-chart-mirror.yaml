@@ -6,7 +6,7 @@ name: Mirror karpenter helm chart
       karpenter_version:
         description: 'Karpenter chart version to mirror'
         required: true
-        default: '1.40.0'
+        default: '1.4.0'
         type: string
 
 env:
@@ -34,15 +34,6 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::204182206073:role/github-repo-quartz
-        aws-region: us-east-1
-
-    - name: Login to public.ecr.aws
-      run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
     - name: Pull and push helm chart
       run: |

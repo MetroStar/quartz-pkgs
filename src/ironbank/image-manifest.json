@@ -112,6 +112,10 @@
     "clobber": false
   },
   {
+    "source": "quay.io/brancz/kube-rbac-proxy:v0.18.2",
+    "clobber": false
+  },
+  {
     "source": "quay.io/cilium/cilium-envoy:v1.31.5-1739264036-958bef243c6c66fcfd73ca319f2eb49fff1eb2ae",
     "clobber": false
   },

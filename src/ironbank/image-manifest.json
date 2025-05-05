@@ -392,11 +392,15 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.6.8",
+    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.6.2",
     "clobber": false
   },
   {
     "source": "registry1.dso.mil/ironbank/opensource/open-webui/open-webui:0.6.5",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/open-webui/pipelines:2024.11.11",
     "clobber": false
   }
 ]

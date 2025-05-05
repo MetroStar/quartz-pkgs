@@ -382,5 +382,21 @@
   {
     "source": "rnwood/smtp4dev:3.6.1",
     "clobber": false
+  },
+  {
+    "source": "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.15",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/k8sgpt-ai/k8sgpt-operator:v0.2.16",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.6.8",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/open-webui/open-webui:0.6.5",
+    "clobber": false
   }
 ]

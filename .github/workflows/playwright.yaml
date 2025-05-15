@@ -35,7 +35,7 @@ jobs:
     - name: Set variables
       run: |
         if [ "${{ inputs.playwright_version }}" == "" ] || [ "${{ inputs.playwright_version }}" == "default" ]; then
-          PLAYWRIGHT_VERSION=$(sed -n 's/^ARG BASE_TAG=//p' src/playwright/Dockerfile)
+          PLAYWRIGHT_VERSION=$(sed -n 's/^ARG PLAYWRIGHT_VERSION=//p' src/playwright/Dockerfile)
         else
           PLAYWRIGHT_VERSION=${{ inputs.playwright_version }}
         fi
@@ -77,4 +77,4 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
-          BASE_TAG=${{ env.PLAYWRIGHT_VERSION }}
+          PLAYWRIGHT_VERSION=${{ env.PLAYWRIGHT_VERSION }}

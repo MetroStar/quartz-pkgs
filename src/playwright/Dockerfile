@@ -15,11 +15,12 @@ WORKDIR /src
 
 COPY package.json package-lock.json ./
 RUN npm ci && \
-    npx playwright@${PLAYWRIGHT_VERSION} install chromium msedge firefox webkit --with-deps --no-shell  && \
-    npm install -g \
-    @unlighthouse/cli@${UNLIGHTHOUSE_VERSION} && \
+    npx playwright@${PLAYWRIGHT_VERSION} install chromium msedge firefox webkit --with-deps --no-shell && \
+    npx puppeteer browsers install chrome-headless-shell && \
+    npm install -g @unlighthouse/cli@${UNLIGHTHOUSE_VERSION} && \
     cp -R /root/.cache /home/node/.cache && \
     chown -R node:node /home/node/.cache && \
+    echo "export CHROME_PATH=$(find /home/node/.cache/puppeteer -name chrome-headless-shell -executable -type f)" >> /home/node/.bashrc && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

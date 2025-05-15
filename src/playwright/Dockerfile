@@ -20,7 +20,7 @@ RUN npm ci && \
     npm install -g @unlighthouse/cli@${UNLIGHTHOUSE_VERSION} && \
     cp -R /root/.cache /home/node/.cache && \
     chown -R node:node /home/node/.cache && \
-    echo "export CHROME_PATH=$(find /home/node/.cache/puppeteer -name chrome-headless-shell -executable -type f)" >> /home/node/.bashrc && \
+    echo "export CHROME_PATH=$(find /home/node/.cache/puppeteer -name chrome-headless-shell -executable -type f)" >> /etc/profile && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

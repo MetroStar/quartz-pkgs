@@ -5,7 +5,6 @@ basic-branch-build-strategies:228.v68c089762a_db_
 build-discarder:158.vce570d01ce4c
 build-token-root:151.va_e52fe3215fc
 cloudbees-disk-usage-simple:241.v0ea_d9a_a_96ee8
-clover:4.14.2.628.ve412b_714e733
 configuration-as-code:1967.va_968e15fd05b_
 coverage:2.5.0
 cucumber-reports:5.8.5
@@ -13,6 +12,7 @@ dark-theme:524.vd675b_22b_30cb_
 dependency-check-jenkins-plugin:5.6.1
 envinject:2.926.v69c9b_3896a_96
 git:5.7.0
+git-forensics:3.2.0
 github-branch-source:1815.v9152b_2ff7a_1b_
 github:1.43.0
 github-checks:602.v264a_83610da_6

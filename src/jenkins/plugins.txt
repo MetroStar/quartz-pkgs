@@ -6,8 +6,8 @@ build-discarder:158.vce570d01ce4c
 build-token-root:151.va_e52fe3215fc
 cloudbees-disk-usage-simple:241.v0ea_d9a_a_96ee8
 clover:4.14.2.628.ve412b_714e733
-cobertura:1.17
 configuration-as-code:1967.va_968e15fd05b_
+coverage:2.5.0
 cucumber-reports:5.8.5
 dark-theme:524.vd675b_22b_30cb_
 dependency-check-jenkins-plugin:5.6.1
@@ -15,9 +15,9 @@ envinject:2.926.v69c9b_3896a_96
 git:5.7.0
 github-branch-source:1815.v9152b_2ff7a_1b_
 github:1.43.0
+github-checks:602.v264a_83610da_6
 grypescanner:1.8
 htmlpublisher:425
-jacoco:3.3.7
 jobcacher:658.v3a_c3ed19fd14
 job-dsl:1.92
 junit-attachments:299.v2e00f511b_538
@@ -32,7 +32,7 @@ Office-365-Connector:5.1.0
 oic-auth:4.494.v6b_f419104767
 performance:984.v7a_a_a_123a_a_952
 pipeline-aws:1.45
-pipeline-graph-view:524.v313953a_7d4c6
+pipeline-graph-view:526.v9185594b_657d
 pipeline-stage-view:2.38
 pipeline-utility-steps:2.19.0
 s3:498.v4c32ea_de55c2

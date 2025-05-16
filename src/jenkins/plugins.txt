@@ -32,7 +32,7 @@ Office-365-Connector:5.1.0
 oic-auth:4.494.v6b_f419104767
 performance:984.v7a_a_a_123a_a_952
 pipeline-aws:1.45
-pipeline-graph-view:526.v9185594b_657d
+pipeline-graph-view:527.v60564e206c1c
 pipeline-stage-view:2.38
 pipeline-utility-steps:2.19.0
 s3:498.v4c32ea_de55c2

@@ -236,6 +236,10 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/crossplane/crossplane:v1.19.1",
+    "clobber": false
+  },
+  {
     "source": "registry1.dso.mil/ironbank/opensource/grafana/alloy:v1.7.5",
     "clobber": false
   },

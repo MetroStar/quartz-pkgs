@@ -100,7 +100,7 @@
     "clobber": false
   },
   {
-    "source": "oci.external-secrets.io/external-secrets/external-secrets:v0.16.1",
+    "source": "oci.external-secrets.io/external-secrets/external-secrets:v0.16.2",
     "clobber": false
   },
   {

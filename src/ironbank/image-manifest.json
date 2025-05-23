@@ -236,7 +236,7 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/crossplane/crossplane:v1.19.1",
+    "source": "registry1.dso.mil/ironbank/opensource/crossplane/crossplane:v1.20.0",
     "clobber": false
   },
   {

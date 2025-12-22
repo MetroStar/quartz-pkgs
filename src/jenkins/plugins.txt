@@ -14,7 +14,7 @@ envinject:2.926.v69c9b_3896a_96
 git:5.8.1
 git-forensics:3.2.0
 github-branch-source:1925.v62fb_7ffb_08ce
-github:1.43.0
+github:1.45.0
 github-checks:602.v264a_83610da_6
 grypescanner:1.8
 htmlpublisher:425

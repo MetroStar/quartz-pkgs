@@ -95,6 +95,7 @@ jobs:
           logout: true
 
       - name: Log in to the Ironbank container registry
+        if: contains(matrix.manifest, 'registry1.dso.mil') || contains(matrix.manifest, 'registry.dso.mil')
         uses: docker/login-action@v3
         with:
           registry: registry1.dso.mil

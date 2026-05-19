@@ -11,7 +11,7 @@ name: Synchronize Quartz image mirror
 env:
   REGISTRY: ghcr.io
   IMAGE_REPOSITORY: ${{ github.repository }}
-  MIRRORED_REGISTRIES: registry1.dso.mil registry.dso.mil quay.io
+  MIRRORED_REGISTRIES: registry1.dso.mil registry.dso.mil quay.io ghcr.io cr.agentgateway.dev docker.io gcr.io public.ecr.aws registry.k8s.io
 
 jobs:
   generate-matrix:
@@ -42,6 +42,13 @@ jobs:
 
             if [ ! $(grep -E "^(${MIRRORED_REGISTRIES// /|})" <<< "$src_tag") ]; then
               echo "Skipping ${src_tag}, not included in mirrored source registries"
+              continue
+            fi
+
+            # Skip images already in the target registry prefix (avoid self-mirroring)
+            target_prefix=$(echo "${REGISTRY}/${IMAGE_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+            if [[ "${src_tag}" == "${target_prefix}/"* ]]; then
+              echo "Skipping ${src_tag}, already in target registry prefix"
               continue
             fi
 

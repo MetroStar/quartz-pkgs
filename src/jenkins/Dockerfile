@@ -1,4 +1,4 @@
-ARG JENKINS_VERSION=2.542-jdk17
+ARG JENKINS_VERSION=2.555.2-jdk17
 
 FROM registry1.dso.mil/ironbank/opensource/jenkins/jenkins:${JENKINS_VERSION}
 

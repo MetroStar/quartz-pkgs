@@ -5,6 +5,7 @@ ARG BASE_TAG=22.22.2
 FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG}
 
 ARG PLAYWRIGHT_VERSION=1.60.0
+ARG PUPPETEER_VERSION=23.11.1
 ARG UNLIGHTHOUSE_VERSION=v0.17.9
 
 ENV CI=1
@@ -16,7 +17,7 @@ WORKDIR /src
 COPY package.json package-lock.json ./
 RUN npm ci && \
     npx playwright@${PLAYWRIGHT_VERSION} install chromium msedge firefox webkit --with-deps --no-shell && \
-    npx puppeteer browsers install chrome-headless-shell && \
+    npx puppeteer@${PUPPETEER_VERSION} browsers install chrome-headless-shell && \
     npm install -g @unlighthouse/cli@${UNLIGHTHOUSE_VERSION} && \
     cp -R /root/.cache /home/node/.cache && \
     chown -R node:node /home/node/.cache && \

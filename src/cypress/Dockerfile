@@ -8,6 +8,8 @@ ARG UNLIGHTHOUSE_VERSION=v0.17.9
 
 USER root
 
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
 RUN npm install -g \
   @unlighthouse/cli@${UNLIGHTHOUSE_VERSION} \
   unlighthouse@${UNLIGHTHOUSE_VERSION} \

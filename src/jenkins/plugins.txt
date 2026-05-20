@@ -5,7 +5,7 @@ basic-branch-build-strategies:228.v68c089762a_db_
 build-discarder:158.vce570d01ce4c
 build-token-root:151.va_e52fe3215fc
 cloudbees-disk-usage-simple:241.v0ea_d9a_a_96ee8
-configuration-as-code:2006.v001a_2ca_6b_574
+configuration-as-code:2053.vb_0da_47381a_25
 coverage:2.5.0
 cucumber-reports:5.8.5
 dark-theme:524.vd675b_22b_30cb_

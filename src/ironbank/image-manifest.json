@@ -1,90 +1,26 @@
 [
   {
-    "source": "602401143452.dkr.ecr.us-east-1.amazonaws.com/eks/coredns:v1.12.4-eksbuild.1",
+    "source": "docker.io/bats/bats:1.13.0",
     "clobber": false
   },
   {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/amazon-k8s-cni-init:v1.21.1-eksbuild.1",
+    "source": "docker.io/emberstack/kubernetes-reflector:10.0.42",
     "clobber": false
   },
   {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/amazon-k8s-cni:v1.21.1-eksbuild.1",
+    "source": "docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-20",
     "clobber": false
   },
   {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/amazon/aws-network-policy-agent:v1.3.1-eksbuild.1",
+    "source": "docker.io/jenkins/jenkins:2.555.2",
     "clobber": false
   },
   {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/aws-ebs-csi-driver:v1.54.0",
+    "source": "docker.io/kiwigrid/k8s-sidecar:2.7.3",
     "clobber": false
   },
   {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/aws-efs-csi-driver:v2.1.15",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/csi-attacher:v4.10.0-eksbuild.3",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/csi-node-driver-registrar:v2.14.0-eksbuild.5",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/csi-node-driver-registrar:v2.15.0-eksbuild.3",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/csi-provisioner:v5.3.0-eksbuild.4",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/csi-provisioner:v6.1.0-eksbuild.2",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/csi-resizer:v2.0.0-eksbuild.3",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/csi-snapshotter:v8.4.0-eksbuild.3",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/eks-node-monitoring-agent:v1.4.2-eksbuild.1",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/eks-pod-identity-agent:v0.1.36",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/kube-proxy:v1.34.1-eksbuild.2",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/livenessprobe:v2.16.0-eksbuild.5",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/livenessprobe:v2.17.0-eksbuild.3",
-    "clobber": false
-  },
-  {
-    "source": "602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/pause:3.10",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/emberstack/kubernetes-reflector:9.1.45",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/kiwigrid/k8s-sidecar:1.30.7",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/velero/velero-plugin-for-aws:v1.13.1",
+    "source": "docker.io/ollama/ollama:0.13.3",
     "clobber": false
   },
   {
@@ -92,31 +28,19 @@
     "clobber": false
   },
   {
-    "source": "ghcr.io/external-secrets/external-secrets:v1.2.0",
+    "source": "ghcr.io/k8sgpt-ai/k8sgpt-operator:v0.2.27",
     "clobber": false
   },
   {
-    "source": "ghcr.io/fluxcd/flux-cli:v2.7.5",
+    "source": "ghcr.io/kedacore/keda-admission-webhooks:2.19.0",
     "clobber": false
   },
   {
-    "source": "ghcr.io/k8sgpt-ai/k8sgpt-operator:v0.2.24",
+    "source": "ghcr.io/kedacore/keda-metrics-apiserver:2.19.0",
     "clobber": false
   },
   {
-    "source": "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.15",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/kedacore/keda-admission-webhooks:2.18.2",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/kedacore/keda-metrics-apiserver:2.18.2",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/kedacore/keda:2.18.2",
+    "source": "ghcr.io/kedacore/keda:2.19.0",
     "clobber": false
   },
   {
@@ -132,10 +56,6 @@
     "clobber": false
   },
   {
-    "source": "ghcr.io/metrostar/quartz-pkgs/jenkins:2.542-jdk17-20251222-1501",
-    "clobber": false
-  },
-  {
     "source": "ghcr.io/metrostar/quartz-pkgs/nodejs:20.19.6-slim-20251222-1443",
     "clobber": false
   },
@@ -148,31 +68,19 @@
     "clobber": false
   },
   {
-    "source": "ghcr.io/stakater/reloader:v1.4.12",
+    "source": "quay.io/argoproj/argo-events:v1.9.10",
     "clobber": false
   },
   {
-    "source": "localhost/kubernetes/pause:latest",
+    "source": "quay.io/argoproj/argocli:v4.0.5",
     "clobber": false
   },
   {
-    "source": "public.ecr.aws/eks/aws-load-balancer-controller:v2.16.0",
+    "source": "quay.io/argoproj/argoexec:v4.0.5",
     "clobber": false
   },
   {
-    "source": "public.ecr.aws/karpenter/controller:1.4.0",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoproj/argo-events:v1.9.9",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoproj/argocli:v3.7.6",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoproj/workflow-controller:v3.7.6",
+    "source": "quay.io/argoproj/workflow-controller:v4.0.5",
     "clobber": false
   },
   {
@@ -180,43 +88,35 @@
     "clobber": false
   },
   {
-    "source": "quay.io/cilium/cilium-envoy:v1.34.12-1765374555-6a93b0bbba8d6dc75b651cbafeedb062b2997716",
+    "source": "registry.k8s.io/external-dns/external-dns:0.21.0",
     "clobber": false
   },
   {
-    "source": "quay.io/cilium/cilium:v1.17.11",
+    "source": "registry.k8s.io/kubectl:v1.36.1",
     "clobber": false
   },
   {
-    "source": "quay.io/cilium/hubble-relay:v1.17.11",
+    "source": "registry1.dso.mil/analytics/redis-exporter:v1.82.0",
     "clobber": false
   },
   {
-    "source": "quay.io/cilium/hubble-ui-backend:v0.13.3",
+    "source": "registry1.dso.mil/bitnami/mysql8:8.0.36-debian-11-r1",
     "clobber": false
   },
   {
-    "source": "quay.io/cilium/hubble-ui:v0.13.3",
+    "source": "registry1.dso.mil/goharbor/harbor-db:v2.14.1",
     "clobber": false
   },
   {
-    "source": "quay.io/cilium/operator-generic:v1.17.11",
+    "source": "registry1.dso.mil/goharbor/redis-photon:v2.14.1",
     "clobber": false
   },
   {
-    "source": "quay.io/strimzi/drain-cleaner:1.4.0",
+    "source": "registry1.dso.mil/ironbank/big-bang/argocd:v3.3.9",
     "clobber": false
   },
   {
-    "source": "quay.io/strimzi/operator:0.49.1",
-    "clobber": false
-  },
-  {
-    "source": "registry.k8s.io/dns/k8s-dns-node-cache:1.26.4",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/big-bang/argocd:v3.2.0",
+    "source": "registry1.dso.mil/ironbank/big-bang/backstage:1.1.0",
     "clobber": false
   },
   {
@@ -224,23 +124,47 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/big-bang/bbctl:2.1.0",
+    "source": "registry1.dso.mil/ironbank/big-bang/bbctl:2.3.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/big-bang/grafana/grafana-plugins:12.3.0",
+    "source": "registry1.dso.mil/ironbank/big-bang/grafana/grafana-plugins:12.4.2",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/bitnami/analytics/redis-exporter:v1.80.0",
+    "source": "registry1.dso.mil/ironbank/bigbang/grafana/loki-canary:3.5.5",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/external-dns:v0.20.0",
+    "source": "registry1.dso.mil/ironbank/bigbang/grafana/loki-helm-test:0.0.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/bitnami/postgres:17.4.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/container-hardening-tools/renovate/renovate:43.31.7",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/elastic/eck-operator/eck-operator:3.3.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/elastic/elasticsearch/elasticsearch:9.3.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/elastic/kibana/kibana:9.3.1",
     "clobber": false
   },
   {
     "source": "registry1.dso.mil/ironbank/fluxcd/helm-controller:v1.4.5",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.7.3",
     "clobber": false
   },
   {
@@ -252,159 +176,415 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-cainjector:v1.19.2",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab-runner/gitlab-runner-helper:v18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-controller:v1.19.2",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/certificates:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-webhook:v1.19.2",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/cfssl-self-sign:1.6.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/kiwigrid/k8s-sidecar:1.30.11",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitaly:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/nirmata/policy-reporter/policy-reporter-ui:2.5.0",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-base:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/grafana/alloy-operator:0.3.1",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-container-registry:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/grafana/alloy:v1.10.0",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-exporter:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/grafana/loki:3.5.7",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-mailroom:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/grafana/tempo:2.8.2",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-pages:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/istio/install-cni:1.28.0",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-shell:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/istio/pilot:1.28.0",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-sidekiq:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/istio/proxyv2:1.28.0",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-toolbox:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/keycloak/keycloak:26.1.5",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/gitlab-webservice:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kubernetes-sigs/metrics-server:v0.8.0",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/kas:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kubernetes/kube-state-metrics:v2.17.0",
+    "source": "registry1.dso.mil/ironbank/gitlab/gitlab/kubectl:18.11.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.33",
+    "source": "registry1.dso.mil/ironbank/grafana/grafana-enterprise-logs:v3.5.4",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyverno/background-controller:v1.16.0",
+    "source": "registry1.dso.mil/ironbank/hashicorp/vault-csi-provider:v1.7.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyverno/cleanup-controller:v1.16.0",
+    "source": "registry1.dso.mil/ironbank/hashicorp/vault/vault-k8s:v1.7.3",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyverno/reports-controller:v1.16.0",
+    "source": "registry1.dso.mil/ironbank/hashicorp/vault:1.21.4",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyvernopre:v1.16.0",
+    "source": "registry1.dso.mil/ironbank/ironbank/opensource/grafana/enterprise-logs-provisioner:3.5.4",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kyverno/policy-reporter/kyverno-plugin:0.5.2",
+    "source": "registry1.dso.mil/ironbank/istio-ecosystem/authservice:1.1.5",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kyverno/policy-reporter:3.6.0",
+    "source": "registry1.dso.mil/ironbank/kiwigrid/k8s-sidecar:1.30.9",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/kyverno:v1.16.0",
+    "source": "registry1.dso.mil/ironbank/kiwigrid/k8s-sidecar:2.5.4",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.13.2",
+    "source": "registry1.dso.mil/ironbank/kiwigrid/k8s-sidecar:2.6.0",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/pause/pause:3.10",
+    "source": "registry1.dso.mil/ironbank/microfocus/fortify/ssc:25.4.1.0006",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/postgres/postgresql:18.1",
+    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/prometheus-exporter:1-1.0.0",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-config-reloader:v0.84.0",
+    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/scanner:6",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-config-reloader:v0.87.0",
+    "source": "registry1.dso.mil/ironbank/nirmata/policy-reporter/policy-reporter-ui:2.5.2",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-operator:v0.87.0",
+    "source": "registry1.dso.mil/ironbank/opensource/apache/kafka-native:4.2.0",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/prometheus/alertmanager:v0.29.0",
+    "source": "registry1.dso.mil/ironbank/opensource/bats/bats:1.13.0",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/prometheus/node-exporter:v1.10.2",
+    "source": "registry1.dso.mil/ironbank/opensource/bats/bats:v1.11.0",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/prometheus/prometheus:v3.8.0",
+    "source": "registry1.dso.mil/ironbank/opensource/containers/buildah:1.41.8",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/python:v3.13.3",
+    "source": "registry1.dso.mil/ironbank/opensource/dexidp/dex:v2.45.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/redis/redis8-slim:8.2.2",
+    "source": "registry1.dso.mil/ironbank/opensource/elasticsearch-exporter:v1.10.0",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/velero/velero:v1.17.1",
+    "source": "registry1.dso.mil/ironbank/opensource/external-secrets/external-secrets:v1.3.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/yq/yq:4.48.1",
+    "source": "registry1.dso.mil/ironbank/opensource/fluent/fluent-bit:v5.0.3",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/sonarsource/sonarqube/sonarqube-community-build:25.10.0.114319-community",
+    "source": "registry1.dso.mil/ironbank/opensource/goharbor/harbor-core:v2.15.0",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/sonarsource/sonarqube/sonarqube-community-build:25.8.0.112029-community",
+    "source": "registry1.dso.mil/ironbank/opensource/goharbor/harbor-exporter:v2.15.0",
     "clobber": false
   },
   {
-    "source": "velero/velero-plugin-for-aws:v1.13.1",
+    "source": "registry1.dso.mil/ironbank/opensource/goharbor/harbor-jobservice:v2.15.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/goharbor/harbor-portal:v2.15.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/goharbor/harbor-registryctl:v2.15.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/goharbor/registry:v2.15.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/goharbor/trivy-adapter:v2.15.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/alloy-operator:1.6.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/alloy:v1.14.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/enterprise-metrics:v2.17.12",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/grafana-image-renderer:v5.7.3",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/helm-chart-toolbox-kubectl:1.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/loki:3.6.7",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/mimir:3.0.6",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/rollout-operator:v0.36.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/tempo-query:2.10.5",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/grafana/tempo:2.10.5",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/headlamp-k8s/headlamp:v0.40.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/ingress-nginx/kube-webhook-certgen:v1.6.9",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/jimmidyson/configmap-reload:v0.15.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/keycloak/keycloak:26.6.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kubernetes-sigs/metrics-server:v0.8.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kubernetes/kube-state-metrics:v2.18.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.33.6",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.34",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.34.6",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kubernetes/kubectl:v1.34.7",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyverno/background-controller:v1.17.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyverno/cleanup-controller:v1.17.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyverno/readiness-checker:v1.17.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyverno/reports-controller:v1.17.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyvernocli:v1.17.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno/kyvernopre:v1.17.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno/policy-reporter/kyverno-plugin:0.6.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno/policy-reporter:3.7.4",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kyverno:v1.17.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/mattermost/mattermost-operator:v1.25.5",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/memcached/memcached:1.6.39",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/memcached/memcached:1.6.41",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/minio/minio:RELEASE.2025-10-15T17-29-55Z",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/minio/operator-sidecar:v7.1.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/minio/operator:v7.1.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/neuvector/registry-adapter:v0.2.6",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/nginx/nginx:1.29.6",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/nginx/nginx:1.30.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/postgres/postgresql:18.3",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-config-reloader:v0.89.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-config-reloader:v0.90.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus-operator/prometheus-operator:v0.90.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/alertmanager:v0.32.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/blackbox_exporter:v0.28.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/memcached-exporter:v0.15.3",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/memcached-exporter:v0.16.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/node-exporter:v1.11.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/prometheus:v3.11.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/snmp_exporter:v0.30.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/thanos/thanos:v0.41.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/velero/velero:v1.18.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/yq/yq:4.50.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/redhat/ubi/ubi9-minimal:9.7",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/redhat/ubi/ubi9:9.7",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/sonarsource/sonarqube/sonarqube-community-build:26.3.0.120487-community",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/twistlock/console/console:34.04.145",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/twistlock/defender/defender:34.04.145",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/neuvector/compliance-config:5.4.8",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/opensource/postgres/postgresql:18.3",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/redis:8.4.0",
     "clobber": false
   }
 ]

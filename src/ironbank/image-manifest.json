@@ -44,7 +44,7 @@
     "clobber": false
   },
   {
-    "source": "ghcr.io/metrostar/quartz-pkgs/build-tools:20250421-2236",
+    "source": "ghcr.io/metrostar/quartz-pkgs/build-tools:20260522-1945",
     "clobber": false
   },
   {

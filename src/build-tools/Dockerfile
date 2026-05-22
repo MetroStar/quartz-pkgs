@@ -6,6 +6,7 @@ ARG SYFT_SCANNER_VERSION=1.44.0
 ARG CRANE_VERSION=0.21.6
 ARG SONAR_SCANNER_VERSION=8.1.0.6389
 ARG OPENTOFU_VERSION=1.11.6
+ARG KUBECTL_VERSION=1.35.3
 ARG AWS_VERSION=2.34.50
 
 # https://github.com/anchore/grype#offline-and-air-gapped-environments
@@ -51,6 +52,10 @@ RUN curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_VERSION}
 
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
+RUN curl -sLO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/kubectl
+
 RUN curl -sL https://fluxcd.io/install.sh | bash -s
 
 USER 1000
@@ -59,6 +64,7 @@ RUN grype db update && \
     grype db status
 
 RUN helm version && \
+    kubectl version --client && \
     flux --version && \
     grype --version && \
     syft --version && \

@@ -594,5 +594,9 @@
   {
     "source": "registry1.dso.mil/redis:8.4.0",
     "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/epyon:3.4.0",
+    "clobber": false
   }
 ]

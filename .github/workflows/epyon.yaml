@@ -1,18 +1,12 @@
-name: Build and Push Jenkins Image
+name: epyon image
 
 'on':
-  workflow_dispatch:
-    inputs:
-      jenkins_version:
-        description: 'Jenkins version to build'
-        required: true
-        default: 'default'
-        type: string
+  workflow_dispatch: {}
   push:
     branches:
     - main
     paths:
-    - src/jenkins/**
+    - src/epyon/**
 
 env:
   REGISTRY: ghcr.io
@@ -20,7 +14,7 @@ env:
 
 jobs:
   build-and-push-image:
-    name: Build Jenkins image
+    name: Build image
 
     runs-on: ubuntu-latest
 
@@ -28,18 +22,16 @@ jobs:
       contents: read
       packages: write
 
-    steps:        
+    steps:
     - name: Checkout source
       uses: actions/checkout@v4
 
-    - name: Set variables
-      run: |
-        if [ "${{ inputs.jenkins_version }}" == "" ] || [ "${{ inputs.jenkins_version }}" == "default" ]; then
-          JENKINS_VERSION=$(sed -n 's/^ARG JENKINS_VERSION=//p' src/jenkins/Dockerfile)
-        else
-          JENKINS_VERSION=${{ inputs.jenkins_version }}
-        fi
-        echo "JENKINS_VERSION=$JENKINS_VERSION" >> $GITHUB_ENV
+    - name: Checkout Epyon
+      uses: actions/checkout@v4
+      with:
+        repository: MetroStar/epyon
+        ref: v3.4.0
+        path: src/epyon/epyon
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -65,19 +57,20 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/jenkins
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/epyon
         tags: |
-          type=raw,value=${{ env.JENKINS_VERSION }}-{{date 'YYYYMMDD-HHmm'}}
+          type=raw,value=3.4.0
+          type=raw,value=3.4.0-{{date 'YYYYMMDD'}}
+          type=sha
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
-        context: src/jenkins
+        context: src/epyon
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        build-args: |
-          JENKINS_VERSION=${{ env.JENKINS_VERSION }}
+        platforms: linux/amd64,linux/arm64
 
   scan:
     name: Epyon security scan

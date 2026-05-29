@@ -20,7 +20,7 @@
     "clobber": false
   },
   {
-    "source": "docker.io/ollama/ollama:0.13.3",
+    "source": "docker.io/ollama/ollama:0.24.0",
     "clobber": false
   },
   {
@@ -28,7 +28,15 @@
     "clobber": false
   },
   {
+    "source": "cr.agentgateway.dev/agentgateway:v1.2.1",
+    "clobber": false
+  },
+  {
     "source": "ghcr.io/k8sgpt-ai/k8sgpt-operator:v0.2.27",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/kagent-dev/kagent:v0.9.4",
     "clobber": false
   },
   {

@@ -1,4 +1,4 @@
-FROM registry1.dso.mil/ironbank/opensource/python/python311:v3.11 AS base
+FROM registry1.dso.mil/ironbank/opensource/python:v3.11.8 AS base
 
 USER root
 

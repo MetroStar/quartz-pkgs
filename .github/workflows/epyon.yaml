@@ -30,7 +30,8 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: MetroStar/epyon
-        ref: v3.4.0
+        # Epyon publishes 3.4.0 on the main branch (no v3.4.0 git tag exists)
+        ref: main
         path: src/epyon/epyon
 
     - name: Set up QEMU

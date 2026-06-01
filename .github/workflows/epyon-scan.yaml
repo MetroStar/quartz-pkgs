@@ -1,0 +1,23 @@
+name: Epyon Security Scan
+
+'on':
+  workflow_call:
+    inputs:
+      scan_mode:
+        description: "Scan mode: container, repo, or full"
+        required: false
+        type: string
+        default: container
+      fail_on_critical:
+        description: "Fail the workflow if critical vulnerabilities are found"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  epyon-scan:
+    name: Epyon scan (${{ inputs.scan_mode }})
+    uses: MetroStar/epyon/.github/workflows/epyon-scan.yml@main
+    with:
+      scan_mode: ${{ inputs.scan_mode }}
+      fail_on_critical: ${{ inputs.fail_on_critical }}

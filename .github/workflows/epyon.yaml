@@ -1,0 +1,79 @@
+name: epyon image
+
+'on':
+  workflow_dispatch: {}
+  push:
+    branches:
+    - main
+    paths:
+    - src/epyon/**
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    name: Build image
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Checkout Epyon
+      uses: actions/checkout@v4
+      with:
+        repository: MetroStar/epyon
+        ref: v3.4.0
+        path: src/epyon/epyon
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to the Github Packages container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Log in to the Ironbank container registry
+      uses: docker/login-action@v3
+      with:
+        registry: registry1.dso.mil
+        username: ${{ secrets.IRONBANK_USERNAME }}
+        password: ${{ secrets.IRONBANK_PASSWORD }}
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/epyon
+        tags: |
+          type=raw,value=3.4.0
+          type=raw,value=3.4.0-{{date 'YYYYMMDD'}}
+          type=sha
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: src/epyon
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: linux/amd64,linux/arm64
+
+  scan:
+    name: Epyon security scan
+    needs: build-and-push-image
+    uses: ./.github/workflows/epyon-scan.yaml
+    secrets: inherit

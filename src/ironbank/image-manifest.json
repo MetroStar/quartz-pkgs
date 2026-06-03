@@ -168,19 +168,19 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/fluxcd/helm-controller:v1.4.5",
+    "source": "registry1.dso.mil/ironbank/fluxcd/helm-controller:v1.5.5",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.7.3",
+    "source": "registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.8.5",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.7.5",
+    "source": "registry1.dso.mil/ironbank/fluxcd/notification-controller:v1.8.4",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/fluxcd/source-controller:v1.7.4",
+    "source": "registry1.dso.mil/ironbank/fluxcd/source-controller:v1.8.5",
     "clobber": false
   },
   {

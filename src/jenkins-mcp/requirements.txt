@@ -1,0 +1,5 @@
+# Pinned for compatibility: fastmcp 2.9.2 requires pydantic < 2.12 (pydantic
+# 2.13 raises "cannot specify both default and default_factory" at import time).
+fastmcp==2.9.2
+pydantic==2.11.7
+requests==2.32.3

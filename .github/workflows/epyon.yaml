@@ -7,6 +7,14 @@ name: epyon image
     - main
     paths:
     - src/epyon/**
+  # Nightly rebuild so the published epyon image tracks MetroStar/epyon's main
+  # branch. The build checks out epyon@main at run time, but a push to that
+  # separate repo cannot fire this workflow, so without a schedule the image
+  # would only refresh when src/epyon/** changes here. 07:00 UTC daily.
+  # NOTE: scheduled triggers only run from the default branch, so this becomes
+  # active once merged to main.
+  schedule:
+  - cron: '0 7 * * *'
 
 env:
   REGISTRY: ghcr.io

@@ -38,7 +38,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: MetroStar/epyon
-        # Epyon publishes 3.4.0 on the main branch (no v3.4.0 git tag exists)
+        # Epyon publishes 3.5.0 on the main branch (no v3.5.0 git tag exists)
         ref: main
         path: src/epyon/epyon
 
@@ -68,8 +68,8 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/epyon
         tags: |
-          type=raw,value=3.4.0
-          type=raw,value=3.4.0-{{date 'YYYYMMDD'}}
+          type=raw,value=3.5.0
+          type=raw,value=3.5.0-{{date 'YYYYMMDD'}}
           type=sha
 
     - name: Build and push Docker image

@@ -172,6 +172,14 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/fluxcd/image-automation-controller:v1.1.4",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/fluxcd/image-reflector-controller:v1.1.2",
+    "clobber": false
+  },
+  {
     "source": "registry1.dso.mil/ironbank/fluxcd/kustomize-controller:v1.8.5",
     "clobber": false
   },

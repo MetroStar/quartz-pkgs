@@ -8,7 +8,7 @@
     "clobber": false
   },
   {
-    "source": "docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-20",
+    "source": "docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-22-jdk21",
     "clobber": false
   },
   {

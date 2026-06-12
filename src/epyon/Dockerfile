@@ -587,6 +587,101 @@ else
 fi
 """,
 )
+
+replace(
+    "/app/scripts/shell/run-sonar-analysis.sh",
+    """_coverage="n/a"
+_bugs="n/a"
+_vulns="n/a"
+_smells="n/a"
+_hotspots="n/a"
+
+if [ -n "$_api_response" ] && echo "$_api_response" | grep -q '"component"'; then
+  _extract() { echo "$_api_response" | grep -o "\\"metric\\":\\"$1\\"[^}]*\\"value\\":\\"[^\\"]*\\"" | grep -o '"value":"[^"]*"' | cut -d'"' -f4 | head -1; }
+  _coverage=$(_extract coverage || echo "n/a")
+  _bugs=$(_extract bugs || echo "n/a")
+  _vulns=$(_extract vulnerabilities || echo "n/a")
+  _smells=$(_extract code_smells || echo "n/a")
+  _hotspots=$(_extract security_hotspots || echo "n/a")
+  echo "[OK] Metrics fetched:"
+  echo "  • Bugs              : $_bugs"
+  echo "  • Vulnerabilities   : $_vulns"
+  echo "  • Code Smells       : $_smells"
+  echo "  • Security Hotspots : $_hotspots"
+  echo "  • Coverage          : ${_coverage}%"
+else
+  echo "[INFO] Could not fetch metrics (API unavailable or project not yet processed)"
+fi
+""",
+    """_coverage="n/a"
+_bugs="n/a"
+_vulns="n/a"
+_smells="n/a"
+_hotspots="n/a"
+_quality_gate_status="n/a"
+
+if [ -n "$_api_response" ] && echo "$_api_response" | grep -q '"component"'; then
+  if command -v jq >/dev/null 2>&1; then
+    _extract() { echo "$_api_response" | jq -r --arg metric "$1" '.component.measures[]? | select(.metric == $metric) | .value' | head -1; }
+    _coverage=$(_extract coverage); _coverage=${_coverage:-n/a}
+    _bugs=$(_extract bugs); _bugs=${_bugs:-n/a}
+    _vulns=$(_extract vulnerabilities); _vulns=${_vulns:-n/a}
+    _smells=$(_extract code_smells); _smells=${_smells:-n/a}
+    _hotspots=$(_extract security_hotspots); _hotspots=${_hotspots:-n/a}
+  else
+    _extract() { python3 -c 'import json,sys; data=json.load(sys.stdin); metric=sys.argv[1]; print(next((m.get("value","n/a") for m in data.get("component",{}).get("measures",[]) if m.get("metric")==metric), "n/a"))' "$1" <<< "$_api_response"; }
+    _coverage=$(_extract coverage)
+    _bugs=$(_extract bugs)
+    _vulns=$(_extract vulnerabilities)
+    _smells=$(_extract code_smells)
+    _hotspots=$(_extract security_hotspots)
+  fi
+  echo "[OK] Metrics fetched:"
+  echo "  - Bugs              : $_bugs"
+  echo "  - Vulnerabilities   : $_vulns"
+  echo "  - Code Smells       : $_smells"
+  echo "  - Security Hotspots : $_hotspots"
+  echo "  - Coverage          : ${_coverage}%"
+else
+  echo "[INFO] Could not fetch metrics (API unavailable or project not yet processed)"
+fi
+
+_qg_url="${SONAR_HOST_URL}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}"
+if command -v curl &>/dev/null; then
+  _qg_response=$(curl -s -H "$_auth_header" "$_qg_url" 2>/dev/null) || _qg_response=""
+  if [ -n "$_qg_response" ] && echo "$_qg_response" | grep -q '"projectStatus"'; then
+    if command -v jq >/dev/null 2>&1; then
+      _quality_gate_status=$(echo "$_qg_response" | jq -r '.projectStatus.status // "n/a"')
+    else
+      _quality_gate_status=$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("projectStatus",{}).get("status","n/a"))' <<< "$_qg_response")
+    fi
+  fi
+fi
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-sonar-analysis.sh",
+    '''  "metrics": {
+    "bugs": "$_bugs",
+    "vulnerabilities": "$_vulns",
+    "code_smells": "$_smells",
+    "security_hotspots": "$_hotspots",
+    "coverage": "$_coverage"
+  },
+  "status": "ANALYSIS_COMPLETE"
+''',
+    '''  "metrics": {
+    "bugs": "$_bugs",
+    "vulnerabilities": "$_vulns",
+    "code_smells": "$_smells",
+    "security_hotspots": "$_hotspots",
+    "coverage": "$_coverage"
+  },
+  "quality_gate_status": "$_quality_gate_status",
+  "status": "ANALYSIS_COMPLETE"
+''',
+)
 PY
 
 RUN chown -R 1000:1000 /app && \

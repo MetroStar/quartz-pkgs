@@ -590,6 +590,72 @@ fi
 
 replace(
     "/app/scripts/shell/run-sonar-analysis.sh",
+    """echo ""
+echo "✅ SonarCloud scanner completed successfully"
+
+# ---------------------------------------------------------------------------
+# Fetch metrics from API and save results JSON
+# ---------------------------------------------------------------------------
+""",
+    """echo ""
+echo "✅ SonarCloud scanner completed successfully"
+
+# ---------------------------------------------------------------------------
+# Wait for SonarQube background processing
+# ---------------------------------------------------------------------------
+_REPORT_TASK_FILE=""
+for _candidate in \\
+  "$REPO_PATH/.scannerwork/report-task.txt" \\
+  "${PROPS_FILE:+$(dirname "$PROPS_FILE")/.scannerwork/report-task.txt}"; do
+  if [ -n "$_candidate" ] && [ -f "$_candidate" ]; then
+    _REPORT_TASK_FILE="$_candidate"
+    break
+  fi
+done
+
+if [ -n "$_REPORT_TASK_FILE" ]; then
+  _ce_task_id=$(grep -E '^ceTaskId=' "$_REPORT_TASK_FILE" | cut -d= -f2- || true)
+  if [ -n "$_ce_task_id" ] && command -v curl &>/dev/null; then
+    echo "[INFO] Waiting for SonarQube background task: $_ce_task_id"
+    _ce_auth_header="Authorization: Bearer ${SONAR_TOKEN}"
+    _ce_status="PENDING"
+    for _attempt in $(seq 1 "${SONAR_CE_WAIT_ATTEMPTS:-60}"); do
+      _ce_response=$(curl -s -H "$_ce_auth_header" "${SONAR_HOST_URL}/api/ce/task?id=${_ce_task_id}" 2>/dev/null) || _ce_response=""
+      if command -v jq >/dev/null 2>&1; then
+        _ce_status=$(echo "$_ce_response" | jq -r '.task.status // "UNKNOWN"' 2>/dev/null || echo "UNKNOWN")
+      else
+        _ce_status=$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("task",{}).get("status","UNKNOWN"))' <<< "$_ce_response" 2>/dev/null || echo "UNKNOWN")
+      fi
+      case "$_ce_status" in
+        SUCCESS)
+          echo "[OK] SonarQube background task completed"
+          break
+          ;;
+        FAILED|CANCELED)
+          echo "[WARNING] SonarQube background task ended with status: $_ce_status"
+          break
+          ;;
+      esac
+      sleep "${SONAR_CE_WAIT_SECONDS:-2}"
+    done
+    if [ "$_ce_status" != "SUCCESS" ]; then
+      echo "[WARNING] Continuing with metrics fetch after SonarQube task status: $_ce_status"
+    fi
+  else
+    echo "[WARNING] Could not find a SonarQube CE task id in $_REPORT_TASK_FILE"
+  fi
+else
+  echo "[WARNING] SonarQube report-task.txt not found; metrics may not be ready yet"
+fi
+
+# ---------------------------------------------------------------------------
+# Fetch metrics from API and save results JSON
+# ---------------------------------------------------------------------------
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-sonar-analysis.sh",
     """_coverage="n/a"
 _bugs="n/a"
 _vulns="n/a"

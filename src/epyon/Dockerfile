@@ -107,6 +107,7 @@ RUN git config --global --unset-all http.https://github.com/.extraheader || true
 # checked-out source at build time until the upstream scanner carries the same
 # native-toolchain behavior.
 RUN python3 - <<'PY'
+import re
 from pathlib import Path
 
 def replace(path: str, old: str, new: str) -> None:
@@ -115,6 +116,14 @@ def replace(path: str, old: str, new: str) -> None:
     if old not in text:
         raise SystemExit(f"expected snippet not found in {path}")
     file_path.write_text(text.replace(old, new))
+
+def regex_replace(path: str, pattern: str, replacement: str, count: int = 1) -> None:
+    file_path = Path(path)
+    text = file_path.read_text()
+    new_text, replaced = re.subn(pattern, replacement, text, count=count, flags=re.S)
+    if replaced != count:
+        raise SystemExit(f"expected {count} regex replacement(s), got {replaced} in {path}")
+    file_path.write_text(new_text)
 
 replace(
     "/app/scripts/shell/run-target-security-scan.sh",
@@ -188,6 +197,23 @@ echo ""
 )
 
 replace(
+    "/app/scripts/shell/run-target-security-scan.sh",
+    """# Create dedicated scan directory
+REPORTS_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+SCAN_DIR="$REPORTS_ROOT/scans/$SCAN_ID"
+mkdir -p "$SCAN_DIR"
+""",
+    """# Create dedicated scan directory. In Kubernetes/Jenkins, EPYON_SCANS_DIR
+# points at the mounted persistent scan volume; local workstation runs keep the
+# upstream reports-root default.
+REPORTS_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+SCAN_ROOT="${EPYON_SCANS_DIR:-$REPORTS_ROOT/scans}"
+SCAN_DIR="$SCAN_ROOT/$SCAN_ID"
+mkdir -p "$SCAN_DIR"
+""",
+)
+
+replace(
     "/app/scripts/shell/run-anchore-scan.sh",
     """# Ensure Docker is running (auto-starts Docker Desktop / Colima / OrbStack if needed)
 ensure_docker_running
@@ -222,6 +248,246 @@ else
 fi
 
 echo
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-xeol-scan.sh",
+    """# Create persistent volume for Xeol cache to speed up subsequent scans
+XEOL_CACHE_VOL="xeol-cache"
+${CONTAINER_CLI} volume create "$XEOL_CACHE_VOL" 2>/dev/null || true
+
+# Update Xeol EOL database before scanning
+echo -e "${CYAN}📥 Updating Xeol end-of-life database...${NC}"
+echo "This ensures we have the latest EOL data..."
+
+${CONTAINER_CLI} run --rm \\
+    -v "$XEOL_CACHE_VOL:/root/.cache" \\
+    noqcks/xeol:latest \\
+    db update 2>&1 | tee -a "$SCAN_LOG"
+""",
+    """# Prefer native Xeol when present; Docker is only needed for image/socket
+# targets in workstation mode.
+LOCAL_XEOL="$(command -v xeol 2>/dev/null || true)"
+XEOL_CACHE_VOL="xeol-cache"
+if [ -z "$LOCAL_XEOL" ] && [ -n "${CONTAINER_CLI:-}" ]; then
+    ${CONTAINER_CLI} volume create "$XEOL_CACHE_VOL" 2>/dev/null || true
+fi
+
+# Update Xeol EOL database before scanning
+echo -e "${CYAN}📥 Updating Xeol end-of-life database...${NC}"
+echo "This ensures we have the latest EOL data..."
+
+if [ -n "$LOCAL_XEOL" ]; then
+    "$LOCAL_XEOL" db update 2>&1 | tee -a "$SCAN_LOG" || true
+else
+    ${CONTAINER_CLI} run --rm \\
+        -v "$XEOL_CACHE_VOL:/root/.cache" \\
+        noqcks/xeol:latest \\
+        db update 2>&1 | tee -a "$SCAN_LOG"
+fi
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-xeol-scan.sh",
+    """# Show database info
+echo -e "${CYAN}📋 Checking Xeol database status...${NC}"
+${CONTAINER_CLI} run --rm \\
+    -v "$XEOL_CACHE_VOL:/root/.cache" \\
+    noqcks/xeol:latest \\
+    db status 2>&1 | tee -a "$SCAN_LOG"
+echo
+""",
+    """# Show database info
+echo -e "${CYAN}📋 Checking Xeol database status...${NC}"
+if [ -n "$LOCAL_XEOL" ]; then
+    "$LOCAL_XEOL" db status 2>&1 | tee -a "$SCAN_LOG" || true
+else
+    ${CONTAINER_CLI} run --rm \\
+        -v "$XEOL_CACHE_VOL:/root/.cache" \\
+        noqcks/xeol:latest \\
+        db status 2>&1 | tee -a "$SCAN_LOG"
+fi
+echo
+""",
+)
+
+regex_replace(
+    "/app/scripts/shell/run-xeol-scan.sh",
+    r"""        # Run xeol scan with Docker using cached/updated database
+        if \[ "\$scan_type" = "dir" \]; then
+            # For directory scans, mount the target directory
+            \$\{CONTAINER_CLI\} run --rm \\
+                -v "\$target:/workspace:ro" \\
+                -v "\$XEOL_CACHE_VOL:/root/\.cache" \\
+                noqcks/xeol:latest \\
+                dir:/workspace \\
+                -o json 2>>"\$SCAN_LOG" > "\$full_output_path"
+        else
+            # For image scans, mount Docker socket to access host's Docker daemon
+            \$\{CONTAINER_CLI\} run --rm \\
+                -v /var/run/docker\.sock:/var/run/docker\.sock \\
+                -v "\$XEOL_CACHE_VOL:/root/\.cache" \\
+                noqcks/xeol:latest \\
+                "docker:\$target" \\
+                -o json 2>>"\$SCAN_LOG" > "\$full_output_path"
+        fi
+""",
+    """        # Run xeol scan. Native directory scans work in hardened pods without
+        # Docker; image/socket targets still fall back to Docker workstation mode.
+        if [ -n "$LOCAL_XEOL" ] && [ "$scan_type" = "dir" ]; then
+            "$LOCAL_XEOL" dir:"$target" -o json 2>>"$SCAN_LOG" > "$full_output_path"
+        elif [ "$scan_type" = "dir" ]; then
+            ${CONTAINER_CLI} run --rm \\
+                -v "$target:/workspace:ro" \\
+                -v "$XEOL_CACHE_VOL:/root/.cache" \\
+                noqcks/xeol:latest \\
+                dir:/workspace \\
+                -o json 2>>"$SCAN_LOG" > "$full_output_path"
+        else
+            ${CONTAINER_CLI} run --rm \\
+                -v /var/run/docker.sock:/var/run/docker.sock \\
+                -v "$XEOL_CACHE_VOL:/root/.cache" \\
+                noqcks/xeol:latest \\
+                "docker:$target" \\
+                -o json 2>>"$SCAN_LOG" > "$full_output_path"
+        fi
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-clamav-scan.sh",
+    """    # Pull ClamAV Docker image (try primary, then fallback)
+    CLAMAV_PULL_OK=false
+""",
+    """    # Prefer native ClamAV when present. Docker remains a workstation fallback.
+    if command -v clamscan >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ Using native ClamAV installation: $(clamscan --version 2>/dev/null | head -1)${NC}"
+        echo -e "${CYAN}📥 Updating ClamAV virus definitions...${NC}"
+        if command -v freshclam >/dev/null 2>&1; then
+            freshclam --stdout 2>&1 | tee -a "$SCAN_LOG" || true
+        else
+            echo -e "${YELLOW}⚠️  freshclam not available; proceeding with existing definitions${NC}"
+        fi
+
+        echo -e "${CYAN}📋 Checking virus definition status...${NC}"
+        clamscan --version 2>&1 | tee -a "$SCAN_LOG"
+
+        echo -e "${BLUE}🔍 Scanning directory: $REPO_PATH${NC}"
+        clamscan -r \\
+            --exclude-dir=node_modules \\
+            --exclude-dir=.scannerwork \\
+            --scan-mail=yes \\
+            --scan-html=yes \\
+            --scan-pdf=yes \\
+            --scan-ole2=yes \\
+            --scan-archive=yes \\
+            --alert-encrypted=yes \\
+            --alert-encrypted-archive=yes \\
+            --alert-encrypted-doc=yes \\
+            --max-recursion=30 \\
+            --max-filesize=2000M \\
+            --max-scansize=2000M \\
+            --log="$OUTPUT_DIR/${SCAN_ID}_clamav-detailed.log" \\
+            "$REPO_PATH" 2>&1 | tee -a "$SCAN_LOG"
+        SCAN_RESULT=$?
+
+        if [ $BASE64_DECODED -gt 0 ]; then
+            echo -e "${BLUE}🔍 Scanning decoded base64 content...${NC}"
+            clamscan -r "$DECODED_DIR" 2>&1 | tee -a "$SCAN_LOG" >> "$OUTPUT_DIR/${SCAN_ID}_clamav-detailed.log"
+            DECODED_SCAN_RESULT=$?
+            if [ $DECODED_SCAN_RESULT -eq 1 ]; then
+                echo -e "${RED}🚨 THREATS FOUND in decoded base64 content!${NC}"
+                SCAN_RESULT=1
+            fi
+        fi
+    else
+    # Pull ClamAV Docker image (try primary, then fallback)
+    CLAMAV_PULL_OK=false
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-clamav-scan.sh",
+    """    # Create current symlink for latest results
+    if [ -f "$OUTPUT_DIR/${SCAN_ID}_clamav-detailed.log" ]; then
+""",
+    """    fi
+
+    # Create current symlink for latest results
+    if [ -f "$OUTPUT_DIR/${SCAN_ID}_clamav-detailed.log" ]; then
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-checkov-scan.sh",
+    """# Check if Docker is available for Checkov
+if [ -n "${CONTAINER_CLI:-}" ]; then
+    echo "🐳 Using Docker-based Checkov..."
+""",
+    """# Prefer native Checkov when present. Docker remains a workstation fallback.
+if command -v checkov >/dev/null 2>&1; then
+    echo "✅ Using native Checkov: $(checkov --version 2>/dev/null | head -1)"
+    echo -e "${BLUE}🔍 Running Checkov scan (native, skipping external dependencies)...${NC}"
+    set +e
+    checkov \\
+        --directory "$TARGET_SCAN_DIR" \\
+        --skip-path node_modules \\
+        --skip-path scans \\
+        --skip-path scripts/anchore-results.json \\
+        --skip-path scripts/shell/scans \\
+        --skip-download \\
+        --output json \\
+        > "$RESULTS_FILE" 2>>"$SCAN_LOG"
+    SCAN_RESULT=$?
+    set -e
+    echo "✅ Checkov native scan completed (exit: $SCAN_RESULT)"
+elif [ -n "${CONTAINER_CLI:-}" ]; then
+    echo "🐳 Using Docker-based Checkov..."
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-grype-scan.sh",
+    """# Show database info
+echo -e "${CYAN}📋 Checking Grype database status...${NC}"
+${CONTAINER_CLI} run --rm \\
+    -e GRYPE_DB_CACHE_DIR=/cache \\
+    -v "$GRYPE_CACHE_VOL:/cache" \\
+    anchore/grype:latest \\
+    db status 2>&1 | tee -a "$SCAN_LOG"
+echo
+""",
+    """# Show database info
+echo -e "${CYAN}📋 Checking Grype database status...${NC}"
+if [ -n "$LOCAL_GRYPE" ]; then
+    "$LOCAL_GRYPE" db status 2>&1 | tee -a "$SCAN_LOG" || true
+else
+    ${CONTAINER_CLI} run --rm \\
+        -e GRYPE_DB_CACHE_DIR=/cache \\
+        -v "$GRYPE_CACHE_VOL:/cache" \\
+        anchore/grype:latest \\
+        db status 2>&1 | tee -a "$SCAN_LOG"
+fi
+echo
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-grype-scan.sh",
+    """            local sbom_zero
+            sbom_zero=$(jq -r '[.matches[] | select(.artifact.version=="0.0.0")] | length' "$output_file" 2>/dev/null || echo "0")
+""",
+    """            sbom_zero=$(jq -r '[.matches[] | select(.artifact.version=="0.0.0")] | length' "$output_file" 2>/dev/null || echo "0")
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-grype-scan.sh",
+    """                local tmp_sbom="${output_file}.tmp"
+""",
+    """                tmp_sbom="${output_file}.tmp"
 """,
 )
 
@@ -314,7 +580,9 @@ PY
 
 RUN chown -R 1000:1000 /app && \
     mkdir -p /data/scans && \
-    chown -R 1000:1000 /data
+    chown -R 1000:1000 /data && \
+    mkdir -p /var/lib/clamav /var/log/clamav && \
+    chown -R 1000:1000 /var/lib/clamav /var/log/clamav
 
 USER 1000
 WORKDIR /app

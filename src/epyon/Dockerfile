@@ -214,6 +214,23 @@ mkdir -p "$SCAN_DIR"
 )
 
 replace(
+    "/app/scripts/shell/generate-scan-findings-summary.sh",
+    """    # Determine paths
+    local SCAN_DIR="$project_root/scans/$scan_id"
+    local OUTPUT_FILE="$SCAN_DIR/security-findings-summary.json"
+    local OUTPUT_HTML="$SCAN_DIR/security-findings-summary.html"
+""",
+    """    # Determine paths. Quartz can mount scan output outside the upstream
+    # reports root (for example /data/scans in Kubernetes/Jenkins), so use the
+    # same scan root selected by run-target-security-scan.sh.
+    local SCAN_ROOT="${EPYON_SCANS_DIR:-$project_root/scans}"
+    local SCAN_DIR="$SCAN_ROOT/$scan_id"
+    local OUTPUT_FILE="$SCAN_DIR/security-findings-summary.json"
+    local OUTPUT_HTML="$SCAN_DIR/security-findings-summary.html"
+""",
+)
+
+replace(
     "/app/scripts/shell/run-anchore-scan.sh",
     """# Ensure Docker is running (auto-starts Docker Desktop / Colima / OrbStack if needed)
 ensure_docker_running

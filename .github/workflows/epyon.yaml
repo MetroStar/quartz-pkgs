@@ -45,7 +45,6 @@ jobs:
         # Epyon publishes 3.5.0 on the main branch (no v3.5.0 git tag exists)
         ref: main
         path: src/epyon/epyon
-        persist-credentials: false
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3

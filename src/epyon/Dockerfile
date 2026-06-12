@@ -371,6 +371,11 @@ replace(
             echo -e "${YELLOW}⚠️  freshclam not available; proceeding with existing definitions${NC}"
         fi
 
+        if ! find /var/lib/clamav -type f \\( -name '*.cvd' -o -name '*.cld' \\) -print -quit | grep -q .; then
+            echo -e "${RED}❌ No ClamAV virus definitions available after freshclam; refusing to report a no-op scan as clean${NC}" | tee -a "$SCAN_LOG"
+            exit 2
+        fi
+
         echo -e "${CYAN}📋 Checking virus definition status...${NC}"
         clamscan --version 2>&1 | tee -a "$SCAN_LOG"
 
@@ -391,12 +396,18 @@ replace(
             --max-scansize=2000M \\
             --log="$OUTPUT_DIR/${SCAN_ID}_clamav-detailed.log" \\
             "$REPO_PATH" 2>&1 | tee -a "$SCAN_LOG"
-        SCAN_RESULT=$?
+        SCAN_RESULT=${PIPESTATUS[0]}
+
+        SCANNED_FILES=$(awk -F: '/Scanned files:/ {gsub(/ /, "", $2); scanned=$2} END {print scanned+0}' "$OUTPUT_DIR/${SCAN_ID}_clamav-detailed.log" 2>/dev/null || echo 0)
+        if [ "${SCANNED_FILES:-0}" -eq 0 ]; then
+            echo -e "${RED}❌ ClamAV scanned 0 files; treating this as a failed scan${NC}" | tee -a "$SCAN_LOG"
+            exit 2
+        fi
 
         if [ $BASE64_DECODED -gt 0 ]; then
             echo -e "${BLUE}🔍 Scanning decoded base64 content...${NC}"
             clamscan -r "$DECODED_DIR" 2>&1 | tee -a "$SCAN_LOG" >> "$OUTPUT_DIR/${SCAN_ID}_clamav-detailed.log"
-            DECODED_SCAN_RESULT=$?
+            DECODED_SCAN_RESULT=${PIPESTATUS[0]}
             if [ $DECODED_SCAN_RESULT -eq 1 ]; then
                 echo -e "${RED}🚨 THREATS FOUND in decoded base64 content!${NC}"
                 SCAN_RESULT=1
@@ -579,9 +590,14 @@ fi
 PY
 
 RUN chown -R 1000:1000 /app && \
+    (getent group 1000 >/dev/null || echo 'epyon:x:1000:' >> /etc/group) && \
+    (getent passwd 1000 >/dev/null || echo 'epyon:x:1000:1000:Epyon:/tmp:/sbin/nologin' >> /etc/passwd) && \
     mkdir -p /data/scans && \
     chown -R 1000:1000 /data && \
     mkdir -p /var/lib/clamav /var/log/clamav && \
+    sed -i 's/^DatabaseOwner /# DatabaseOwner /' /etc/freshclam.conf && \
+    sed -i 's|^UpdateLogFile .*|UpdateLogFile /var/log/clamav/freshclam.log|' /etc/freshclam.conf && \
+    chmod 0644 /etc/freshclam.conf && \
     chown -R 1000:1000 /var/lib/clamav /var/log/clamav
 
 USER 1000

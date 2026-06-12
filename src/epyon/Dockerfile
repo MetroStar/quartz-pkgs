@@ -91,7 +91,14 @@ RUN npm install -g sonarqube-scanner \
     && command -v npx \
     && command -v sonar-scanner
 
-COPY epyon/ /app/
+COPY --exclude=.git epyon/ /app/
+
+# The GitHub Actions checkout used to populate src/epyon/epyon may include a
+# CI-only HTTP extraheader in .git/config. If that metadata is copied into the
+# runtime image, scanner jobs send a stale credential when cloning any GitHub
+# target, causing even public repositories to fail with an auth prompt. Exclude
+# .git at COPY time so credential-bearing metadata never enters an image layer.
+RUN git config --global --unset-all http.https://github.com/.extraheader || true
 
 # Quartz runs the Epyon scanner in hardened Kubernetes/Jenkins pods where a
 # Docker daemon/socket is intentionally unavailable. The upstream scripts are

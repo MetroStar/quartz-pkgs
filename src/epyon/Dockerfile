@@ -89,7 +89,7 @@ RUN npm install -g sonarqube-scanner \
     && command -v node \
     && command -v npm \
     && command -v npx \
-    && command -v sonarqube-scanner
+    && command -v sonar-scanner
 
 COPY epyon/ /app/
 
@@ -267,10 +267,10 @@ else
     2>&1 | tee "$SCANNER_LOG"
 fi
 """,
-    """if command -v sonarqube-scanner >/dev/null 2>&1; then
-  SONAR_SCANNER=(sonarqube-scanner)
-elif command -v sonar-scanner >/dev/null 2>&1; then
+    """if command -v sonar-scanner >/dev/null 2>&1; then
   SONAR_SCANNER=(sonar-scanner)
+elif command -v sonarqube-scanner >/dev/null 2>&1; then
+  SONAR_SCANNER=(sonarqube-scanner)
 elif command -v npx >/dev/null 2>&1; then
   SONAR_SCANNER=(npx --yes sonarqube-scanner)
 else

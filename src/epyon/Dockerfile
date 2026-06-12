@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 FROM registry1.dso.mil/ironbank/opensource/python:v3.14 AS base
 
 USER root
@@ -18,7 +19,9 @@ USER root
 #   jq    - JSON parsing in most scan/enrichment scripts (run-xeol/grype/
 #           trivy-scan.sh, enrich-findings.sh); guarded with `command -v jq`.
 #   nmap  - Network Discovery layer (run-network-discovery.sh) active scan.
-RUN dnf install -y git jq nmap \
+#   nodejs/npm/java - SonarQube layer. The upstream runner invokes the
+#           sonarqube-scanner npm package via npx, and the scanner needs a JVM.
+RUN dnf install -y git jq nmap nodejs npm java-21-openjdk-headless \
     && dnf clean all && rm -rf /var/cache/dnf
 
 # ClamAV (Malware layer, run-clamav-scan.sh): clamscan + freshclam. clamav is
@@ -80,7 +83,227 @@ RUN set -eux; \
 #                           the hardened pod (no outbound pip) self-sufficient.
 RUN pip install --no-cache-dir fastapi uvicorn aiofiles python-multipart httpx openai checkov picklescan
 
+# SonarQube scanner for the Code Quality layer. Install it during the image
+# build so CI scans do not try to download npm packages at runtime.
+RUN npm install -g sonarqube-scanner \
+    && command -v node \
+    && command -v npm \
+    && command -v npx \
+    && command -v sonarqube-scanner
+
 COPY epyon/ /app/
+
+# Quartz runs the Epyon scanner in hardened Kubernetes/Jenkins pods where a
+# Docker daemon/socket is intentionally unavailable. The upstream scripts are
+# workstation-friendly and globally require Docker before dispatching scan
+# layers, even for analysis-mode layers that can run from native CLIs. Patch the
+# checked-out source at build time until the upstream scanner carries the same
+# native-toolchain behavior.
+RUN python3 - <<'PY'
+from pathlib import Path
+
+def replace(path: str, old: str, new: str) -> None:
+    file_path = Path(path)
+    text = file_path.read_text()
+    if old not in text:
+        raise SystemExit(f"expected snippet not found in {path}")
+    file_path.write_text(text.replace(old, new))
+
+replace(
+    "/app/scripts/shell/run-target-security-scan.sh",
+    """# Check if Docker is installed
+if ! command -v docker &>/dev/null; then
+    echo -e "${RED}❌ Error: Docker is not installed${NC}"
+    echo -e "${YELLOW}💡 Install options:${NC}"
+    echo -e "${YELLOW}   - Docker Engine: https://docs.docker.com/engine/install/${NC}"
+    echo -e "${YELLOW}   - Docker Desktop: https://docker.com${NC}"
+    echo -e "${YELLOW}   - Colima (macOS): brew install colima docker${NC}"
+    echo -e "${YELLOW}   - Rancher Desktop: https://rancherdesktop.io/${NC}"
+    exit 1
+fi
+
+# Check if Docker daemon is running
+if check_docker_running; then
+    echo -e "${GREEN}✅ Docker is running${NC}"
+else
+    echo -e "${YELLOW}⚠️  Docker is not running${NC}"
+    start_docker
+fi
+
+# Verify Docker is working with a quick test
+echo -n "   Verifying Docker connectivity... "
+if docker ps &>/dev/null; then
+    echo -e "${GREEN}OK${NC}"
+else
+    echo -e "${RED}FAILED${NC}"
+    echo -e "${RED}❌ Docker is running but not responding properly${NC}"
+    exit 1
+fi
+
+echo ""
+""",
+    """if [[ "${EPYON_REQUIRE_DOCKER:-false}" == "true" ]]; then
+    # Check if Docker is installed
+    if ! command -v docker &>/dev/null; then
+        echo -e "${RED}❌ Error: Docker is not installed${NC}"
+        echo -e "${YELLOW}💡 Install options:${NC}"
+        echo -e "${YELLOW}   - Docker Engine: https://docs.docker.com/engine/install/${NC}"
+        echo -e "${YELLOW}   - Docker Desktop: https://docker.com${NC}"
+        echo -e "${YELLOW}   - Colima (macOS): brew install colima docker${NC}"
+        echo -e "${YELLOW}   - Rancher Desktop: https://rancherdesktop.io/${NC}"
+        exit 1
+    fi
+
+    # Check if Docker daemon is running
+    if check_docker_running; then
+        echo -e "${GREEN}✅ Docker is running${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Docker is not running${NC}"
+        start_docker
+    fi
+
+    # Verify Docker is working with a quick test
+    echo -n "   Verifying Docker connectivity... "
+    if docker ps &>/dev/null; then
+        echo -e "${GREEN}OK${NC}"
+    else
+        echo -e "${RED}FAILED${NC}"
+        echo -e "${RED}❌ Docker is running but not responding properly${NC}"
+        exit 1
+    fi
+else
+    echo -e "${GREEN}✅ Native scanner image mode${NC}"
+    echo -e "${CYAN}   Docker daemon preflight skipped. Set EPYON_REQUIRE_DOCKER=true for image/socket-backed layers.${NC}"
+fi
+
+echo ""
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-anchore-scan.sh",
+    """# Ensure Docker is running (auto-starts Docker Desktop / Colima / OrbStack if needed)
+ensure_docker_running
+log "✅ Docker is available"
+
+# Prefer local grype/syft installations to avoid Docker volume-mount issues on macOS
+""",
+    """# Prefer local grype/syft installations to avoid Docker volume-mount issues on macOS
+if command -v grype &>/dev/null && command -v syft &>/dev/null; then
+    log "✅ Native grype/syft available; Docker preflight skipped for filesystem/SBOM analysis"
+else
+    ensure_docker_running
+    log "✅ Docker is available"
+fi
+
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-xeol-scan.sh",
+    """# Ensure Docker is running (auto-starts Docker Desktop / Colima / OrbStack if needed)
+ensure_docker_running
+
+echo
+""",
+    """# Filesystem analysis can use the native xeol binary baked into the Quartz
+# image. Docker remains required only for Docker image/socket-backed targets.
+if command -v xeol &>/dev/null && [[ "${EPYON_REQUIRE_DOCKER:-false}" != "true" ]]; then
+    echo -e "${GREEN}✅ Native xeol available; Docker preflight skipped${NC}"
+else
+    ensure_docker_running
+fi
+
+echo
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-sonar-analysis.sh",
+    """if [[ "$SONAR_HOST_URL" != https://* ]]; then
+  echo "[ERROR] SONAR_HOST_URL must use HTTPS to protect transmitted credentials and source code." >&2
+  echo "[ERROR] Current value: $SONAR_HOST_URL" >&2
+  exit 1
+fi
+""",
+    """if [[ "$SONAR_HOST_URL" != https://* ]]; then
+  case "$SONAR_HOST_URL" in
+    http://sonarqube.sonarqube:9000|http://sonarqube.sonarqube.svc:9000|http://sonarqube.sonarqube.svc.cluster.local:9000)
+      echo "[INFO] Allowing in-cluster SonarQube HTTP URL: $SONAR_HOST_URL" >&2
+      ;;
+    *)
+      echo "[ERROR] SONAR_HOST_URL must use HTTPS unless it is the in-cluster SonarQube service." >&2
+      echo "[ERROR] Current value: $SONAR_HOST_URL" >&2
+      exit 1
+      ;;
+  esac
+fi
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-sonar-analysis.sh",
+    """if [ -n "$PROPS_FILE" ]; then
+  # Properties file found — cd to its directory so relative paths inside it resolve
+  cd "$(dirname "$PROPS_FILE")"
+  npx sonarqube-scanner \\
+    -Dsonar.projectKey="$SONAR_PROJECT_KEY" \\
+    -Dsonar.host.url="$SONAR_HOST_URL" \\
+    -Dsonar.token="$SONAR_TOKEN" \\
+    $ORG_ARG \\
+    $EXTRA_ARGS \\
+    2>&1 | tee "$SCANNER_LOG"
+else
+  # No properties file — pass sources explicitly
+  cd "$REPO_PATH"
+  npx sonarqube-scanner \\
+    -Dsonar.projectKey="$SONAR_PROJECT_KEY" \\
+    -Dsonar.sources="$REPO_PATH" \\
+    -Dsonar.projectBaseDir="$REPO_PATH" \\
+    -Dsonar.host.url="$SONAR_HOST_URL" \\
+    -Dsonar.token="$SONAR_TOKEN" \\
+    $ORG_ARG \\
+    $EXTRA_ARGS \\
+    2>&1 | tee "$SCANNER_LOG"
+fi
+""",
+    """if command -v sonarqube-scanner >/dev/null 2>&1; then
+  SONAR_SCANNER=(sonarqube-scanner)
+elif command -v sonar-scanner >/dev/null 2>&1; then
+  SONAR_SCANNER=(sonar-scanner)
+elif command -v npx >/dev/null 2>&1; then
+  SONAR_SCANNER=(npx --yes sonarqube-scanner)
+else
+  echo "[ERROR] Neither sonarqube-scanner, sonar-scanner, nor npx is available in this image." >&2
+  exit 1
+fi
+
+if [ -n "$PROPS_FILE" ]; then
+  # Properties file found — cd to its directory so relative paths inside it resolve
+  cd "$(dirname "$PROPS_FILE")"
+  "${SONAR_SCANNER[@]}" \\
+    -Dsonar.projectKey="$SONAR_PROJECT_KEY" \\
+    -Dsonar.host.url="$SONAR_HOST_URL" \\
+    -Dsonar.token="$SONAR_TOKEN" \\
+    $ORG_ARG \\
+    $EXTRA_ARGS \\
+    2>&1 | tee "$SCANNER_LOG"
+else
+  # No properties file — pass sources explicitly
+  cd "$REPO_PATH"
+  "${SONAR_SCANNER[@]}" \\
+    -Dsonar.projectKey="$SONAR_PROJECT_KEY" \\
+    -Dsonar.sources="$REPO_PATH" \\
+    -Dsonar.projectBaseDir="$REPO_PATH" \\
+    -Dsonar.host.url="$SONAR_HOST_URL" \\
+    -Dsonar.token="$SONAR_TOKEN" \\
+    $ORG_ARG \\
+    $EXTRA_ARGS \\
+    2>&1 | tee "$SCANNER_LOG"
+fi
+""",
+)
+PY
 
 RUN chown -R 1000:1000 /app && \
     mkdir -p /data/scans && \

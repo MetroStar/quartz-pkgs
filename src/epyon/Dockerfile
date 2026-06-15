@@ -16,12 +16,15 @@ USER root
 #           raises FileNotFoundError before returncode is set, so the job hangs
 #           forever at "Cloning …" (status stays "running"). The old v3.11.8
 #           base shipped git implicitly; the v3.14 base does not.
+#   hostname - scan-manifest generation shells out to `hostname`; without it
+#           the scan still finishes, but the metadata/HTML path logs a noisy
+#           warning and omits the host field.
 #   jq    - JSON parsing in most scan/enrichment scripts (run-xeol/grype/
 #           trivy-scan.sh, enrich-findings.sh); guarded with `command -v jq`.
 #   nmap  - Network Discovery layer (run-network-discovery.sh) active scan.
 #   nodejs/npm/java - SonarQube layer. The upstream runner invokes the
 #           sonarqube-scanner npm package via npx, and the scanner needs a JVM.
-RUN dnf install -y git jq nmap nodejs npm java-21-openjdk-headless \
+RUN dnf install -y git hostname jq nmap nodejs npm java-21-openjdk-headless \
     && dnf clean all && rm -rf /var/cache/dnf
 
 # ClamAV (Malware layer, run-clamav-scan.sh): clamscan + freshclam. clamav is

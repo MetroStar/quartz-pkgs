@@ -162,6 +162,7 @@ while IFS= read -r line; do
 done < <(yq -r '
   to_entries[] |
   select(.value | type == "!!map") |
+  select((.value.enabled // true) == true) |
   select(.value | has("helm")) |
   select(.value.helm | has("repo")) |
   select(.value.helm | has("version")) |
@@ -176,7 +177,10 @@ declare -A CHART_NAME_MAP=(
   [certManager]="cert-manager"
   [externalDns]="external-dns"
   [externalSecrets]="external-secrets"
-  [k8sgptOperator]="k8sgpt-operator"
+  [k8sgpt]="k8sgpt-operator"
+  [nvidiaDevicePlugin]="nvidia-device-plugin"
+  [agentgatewayCrds]="agentgateway-crds"
+  [kagentCrds]="kagent-crds"
   [openWebui]="open-webui"
   [argoWorkflows]="argo-workflows"
   [argoRollouts]="argo-rollouts"
@@ -203,23 +207,54 @@ if [[ -n "$STRIMZI_REPO" && -n "$STRIMZI_VER" ]]; then
 fi
 
 HELM_CHART_COUNT=0
+HTTP_REPO_COUNT=0
+declare -A SEEN_HTTP_REPOS=()
+
+# Add/update traditional Helm repositories before we start pulling from them.
+for entry in "${HELM_CHARTS[@]}"; do
+  IFS=$'\t' read -r key repo_url version <<< "$entry"
+  [[ -z "$repo_url" || -z "$version" ]] && continue
+  [[ "$repo_url" == oci://* ]] && continue
+
+  repo_alias=$(echo "$key" | tr '[:upper:]' '[:lower:]' | tr -d '-')
+  if [[ -z "${SEEN_HTTP_REPOS[$repo_alias]:-}" ]]; then
+    helm repo add "$repo_alias" "$repo_url" >/dev/null 2>&1 || true
+    SEEN_HTTP_REPOS["$repo_alias"]=1
+    HTTP_REPO_COUNT=$((HTTP_REPO_COUNT + 1))
+  fi
+done
+
+if [[ $HTTP_REPO_COUNT -gt 0 ]]; then
+  helm repo update >/dev/null 2>&1 || true
+fi
+
 for entry in "${HELM_CHARTS[@]}"; do
   IFS=$'\t' read -r key repo_url version <<< "$entry"
   [[ -z "$repo_url" || -z "$version" ]] && continue
 
   # Resolve chart name
   chart_name="${CHART_NAME_MAP[$key]:-$key}"
-  repo_alias=$(echo "$key" | tr '[:upper:]' '[:lower:]' | tr -d '-')
+  chart_ref=""
 
-  # Add helm repo (suppress if exists)
-  helm repo add "$repo_alias" "$repo_url" 2>/dev/null || true
+  if [[ "$repo_url" == oci://* ]]; then
+    chart_ref="${repo_url}/${chart_name}"
+  else
+    repo_alias=$(echo "$key" | tr '[:upper:]' '[:lower:]' | tr -d '-')
+    chart_ref="${repo_alias}/${chart_name}"
+  fi
 
-  # Get chart values and appVersion
-  CHART_VALUES=$(helm show values "$repo_alias/$chart_name" --version "$version" 2>/dev/null || echo "")
-  APP_VERSION=$(helm show chart "$repo_alias/$chart_name" --version "$version" 2>/dev/null | yq -r '.appVersion // ""' 2>/dev/null || echo "")
-
-  if [[ -z "$CHART_VALUES" ]]; then
+  # Fetch chart metadata first. Some CRD/helper charts ship no values at all,
+  # which should not be treated as a hard extraction failure.
+  CHART_METADATA=$(helm show chart "$chart_ref" --version "$version" 2>/dev/null || echo "")
+  APP_VERSION=$(printf '%s' "$CHART_METADATA" | yq -r '.appVersion // ""' 2>/dev/null || echo "")
+  if [[ -z "$CHART_METADATA" ]]; then
     echo "  WARN: Could not pull values for $chart_name:$version from $repo_url" >&2
+    continue
+  fi
+
+  CHART_VALUES=$(helm show values "$chart_ref" --version "$version" 2>/dev/null || true)
+  if [[ -z "$CHART_VALUES" ]]; then
+    HELM_CHART_COUNT=$((HELM_CHART_COUNT + 1))
     continue
   fi
 
@@ -260,7 +295,6 @@ for entry in "${HELM_CHARTS[@]}"; do
 
   HELM_CHART_COUNT=$((HELM_CHART_COUNT + 1))
 done
-helm repo update 2>/dev/null || true
 echo "  Processed $HELM_CHART_COUNT upstream Helm charts" >&2
 
 ###############################################################################

@@ -24,7 +24,10 @@ USER root
 #   nmap  - Network Discovery layer (run-network-discovery.sh) active scan.
 #   nodejs/npm/java - SonarQube layer. The upstream runner invokes the
 #           sonarqube-scanner npm package via npx, and the scanner needs a JVM.
-RUN dnf install -y git hostname jq nmap nodejs npm java-21-openjdk-headless \
+#   python3-pip - The Ironbank Python v3.14 image does not ship pip by default
+#           (unlike v3.11.8). Installing via dnf ensures pip is available for
+#           the subsequent RUN layer that installs the Python API dependencies.
+RUN dnf install -y git hostname jq nmap nodejs npm java-21-openjdk-headless python3-pip \
     && dnf clean all && rm -rf /var/cache/dnf
 
 # ClamAV (Malware layer, run-clamav-scan.sh): clamscan + freshclam. clamav is

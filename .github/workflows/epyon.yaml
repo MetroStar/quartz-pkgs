@@ -69,13 +69,18 @@ jobs:
         password: ${{ secrets.IRONBANK_PASSWORD }}
 
     - name: Checkout Epyon
-      uses: actions/checkout@v4
-      with:
-        repository: MetroStar/epyon
-        # Epyon publishes 3.5.0 on the main branch (no v3.5.0 git tag exists)
-        ref: main
-        path: src/epyon/epyon
-        persist-credentials: false
+      # actions/checkout@v4 fails on MetroStar/epyon because the repo has a
+      # gitlink entry (.bats/bats-core) with no corresponding .gitmodules URL,
+      # causing git to exit 128. Using git clone --no-recurse-submodules skips
+      # submodule URL validation entirely. The token is masked in logs by
+      # GitHub Actions; .git is excluded from the build context via .dockerignore
+      # so the credential-bearing remote URL never enters the Docker image.
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        git clone --depth 1 --branch main --no-recurse-submodules \
+          "https://x-access-token:${GITHUB_TOKEN}@github.com/MetroStar/epyon.git" \
+          src/epyon/epyon
 
     - name: Docker meta
       id: meta

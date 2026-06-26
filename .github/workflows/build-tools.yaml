@@ -61,3 +61,9 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+
+  scan:
+    name: Epyon security scan
+    needs: build-and-push-image
+    uses: ./.github/workflows/epyon-scan.yaml
+    secrets: inherit

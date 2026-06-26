@@ -1,12 +1,13 @@
 # syntax=docker/dockerfile:1
 FROM registry1.dso.mil/ironbank/big-bang/base:2.1.0
 
-ARG GRYPE_SCANNER_VERSION=0.104.2
-ARG SYFT_SCANNER_VERSION=1.38.2
-ARG CRANE_VERSION=0.20.7
-ARG SONAR_SCANNER_VERSION=7.0.2.4839
-ARG TERRAFORM_VERSION=1.5.7
-ARG AWS_VERSION=2.32.21
+ARG GRYPE_SCANNER_VERSION=0.112.0
+ARG SYFT_SCANNER_VERSION=1.44.0
+ARG CRANE_VERSION=0.21.6
+ARG SONAR_SCANNER_VERSION=8.1.0.6389
+ARG OPENTOFU_VERSION=1.11.6
+ARG KUBECTL_VERSION=1.35.3
+ARG AWS_VERSION=2.34.50
 
 # https://github.com/anchore/grype#offline-and-air-gapped-environments
 ENV GRYPE_DB_AUTO_UPDATE=true
@@ -37,11 +38,11 @@ RUN SONAR_SCANNER_PACKAGE=sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64 &
     rm ${SONAR_SCANNER_PACKAGE}.zip && \
     mv ./sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64/ /opt/sonar/
 
-RUN curl -o terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    unzip terraform.zip && \
-    mv terraform /usr/local/bin/terraform && \
-    chmod +x /usr/local/bin/terraform && \
-    rm terraform.zip
+RUN curl -sL "https://github.com/opentofu/opentofu/releases/download/v${OPENTOFU_VERSION}/tofu_${OPENTOFU_VERSION}_linux_amd64.zip" -o tofu.zip && \
+    unzip tofu.zip -d /tmp/tofu && \
+    mv /tmp/tofu/tofu /usr/local/bin/tofu && \
+    chmod +x /usr/local/bin/tofu && \
+    rm -rf tofu.zip /tmp/tofu
 
 RUN curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_VERSION}.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
@@ -51,6 +52,10 @@ RUN curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_VERSION}
 
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
+RUN curl -sLO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/kubectl
+
 RUN curl -sL https://fluxcd.io/install.sh | bash -s
 
 USER 1000
@@ -59,10 +64,11 @@ RUN grype db update && \
     grype db status
 
 RUN helm version && \
+    kubectl version --client && \
     flux --version && \
     grype --version && \
     syft --version && \
-    terraform --version && \
+    tofu --version && \
     crane version && \
     skopeo --version && \
     java --version && \

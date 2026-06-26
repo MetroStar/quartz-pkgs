@@ -6,7 +6,17 @@ name: epyon image
     branches:
     - main
     paths:
+    - .github/workflows/epyon.yaml
+    - .github/workflows/epyon-scan.yaml
     - src/epyon/**
+  # Nightly rebuild so the published epyon image tracks MetroStar/epyon's main
+  # branch. The build checks out epyon@main at run time, but a push to that
+  # separate repo cannot fire this workflow, so without a schedule the image
+  # would only refresh when src/epyon/** changes here. 07:00 UTC daily.
+  # NOTE: scheduled triggers only run from the default branch, so this becomes
+  # active once merged to main.
+  schedule:
+  - cron: '0 7 * * *'
 
 env:
   REGISTRY: ghcr.io
@@ -25,12 +35,14 @@ jobs:
     steps:
     - name: Checkout source
       uses: actions/checkout@v4
+      with:
+        persist-credentials: false
 
     - name: Checkout Epyon
       uses: actions/checkout@v4
       with:
         repository: MetroStar/epyon
-        # Epyon publishes 3.4.0 on the main branch (no v3.4.0 git tag exists)
+        # Epyon publishes 3.5.0 on the main branch (no v3.5.0 git tag exists)
         ref: main
         path: src/epyon/epyon
 
@@ -60,8 +72,8 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/epyon
         tags: |
-          type=raw,value=3.4.0
-          type=raw,value=3.4.0-{{date 'YYYYMMDD'}}
+          type=raw,value=3.5.0
+          type=raw,value=3.5.0-{{date 'YYYYMMDD'}}
           type=sha
 
     - name: Build and push Docker image
@@ -77,4 +89,7 @@ jobs:
     name: Epyon security scan
     needs: build-and-push-image
     uses: ./.github/workflows/epyon-scan.yaml
+    with:
+      scan_mode: full
+      fail_on_critical: true
     secrets: inherit

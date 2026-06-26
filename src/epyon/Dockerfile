@@ -84,7 +84,7 @@ RUN set -eux; \
 #   picklescan            - Pickle layer (run-picklescan.sh); the script
 #                           auto-installs it on demand, but baking it in keeps
 #                           the hardened pod (no outbound pip) self-sufficient.
-RUN pip install --no-cache-dir fastapi uvicorn aiofiles python-multipart httpx openai checkov picklescan
+RUN python3 -m pip install --no-cache-dir fastapi uvicorn aiofiles python-multipart httpx openai checkov picklescan
 
 # SonarQube scanner for the Code Quality layer. Install it during the image
 # build so CI scans do not try to download npm packages at runtime.

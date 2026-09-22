@@ -44,10 +44,6 @@
     "clobber": false
   },
   {
-    "source": "docker.io/library:18.3-alpine",
-    "clobber": false
-  },
-  {
     "source": "docker.io/ollama/ollama:0.30.6",
     "clobber": false
   },
@@ -132,7 +128,7 @@
     "clobber": false
   },
   {
-    "source": "registry.k8s.io/external-dns/external-dns:0.21.0",
+    "source": "registry.k8s.io/external-dns/external-dns:v0.21.0",
     "clobber": false
   },
   {

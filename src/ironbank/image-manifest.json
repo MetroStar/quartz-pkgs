@@ -128,10 +128,6 @@
     "clobber": false
   },
   {
-    "source": "registry.k8s.io/external-dns/external-dns:v0.21.0",
-    "clobber": false
-  },
-  {
     "source": "registry.k8s.io/kubectl:v1.36.1",
     "clobber": false
   },
@@ -656,7 +652,7 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/external-dns:0.21.0",
+    "source": "registry1.dso.mil/ironbank/external-dns:v0.21.0-5530815",
     "clobber": false
   },
   {

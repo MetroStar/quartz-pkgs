@@ -108,6 +108,11 @@ jobs:
           src_tag=${{ matrix.manifest }}
           dest_tag=$(echo ${REGISTRY}/${IMAGE_REPOSITORY} | tr '[:upper:]' '[:lower:]')
           new_tag=$(echo ${src_tag} | sed "s;^\(${MIRRORED_REGISTRIES// /\\|}\);${dest_tag};g")
+          # Iron Bank publishes external-dns with a build suffix, while
+          # Quartz deploys the stable upstream-compatible v0.21.0 tag.
+          if [[ "${src_tag}" =~ ^registry1\.dso\.mil/ironbank/external-dns:v0\.21\.0-[0-9]+$ ]]; then
+            new_tag="${dest_tag}/ironbank/external-dns:v0.21.0"
+          fi
           suffix=${{ needs.generate-matrix.outputs.suffix }}
 
           docker pull ${src_tag}

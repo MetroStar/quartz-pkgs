@@ -358,6 +358,7 @@ KNOWN_OPERATOR_IMAGES=(
   "nvcr.io/nvidia/k8s-device-plugin:v0.17.1"
   "quay.io/strimzi/operator:1.0.0"
   "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.30.6"
+  "registry1.dso.mil/ironbank/external-dns:v0.21.0-5530815"
 )
 
 for img in "${KNOWN_OPERATOR_IMAGES[@]}"; do

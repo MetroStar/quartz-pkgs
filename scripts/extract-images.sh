@@ -355,6 +355,9 @@ KNOWN_OPERATOR_IMAGES=(
   "registry1.dso.mil/ironbank/jetstack/cert-manager-cainjector:v1.20.2"
   "ghcr.io/jetstack/cert-manager-startupapicheck:v1.20.2"
   "registry.k8s.io/dns/k8s-dns-node-cache:1.26.7"
+  "nvcr.io/nvidia/k8s-device-plugin:v0.17.1"
+  "quay.io/strimzi/operator:1.0.0"
+  "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.30.6"
 )
 
 for img in "${KNOWN_OPERATOR_IMAGES[@]}"; do

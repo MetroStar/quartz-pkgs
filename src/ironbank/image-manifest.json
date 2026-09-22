@@ -52,6 +52,10 @@
     "clobber": false
   },
   {
+    "source": "quay.io/strimzi/operator:1.0.0",
+    "clobber": false
+  },
+  {
     "source": "gcr.io/kaniko-project/executor:v1.24.0-debug",
     "clobber": false
   },
@@ -104,7 +108,7 @@
     "clobber": false
   },
   {
-    "source": "nvcr.io/nvidia/k8s-device-plugin:0.17.1",
+    "source": "nvcr.io/nvidia/k8s-device-plugin:v0.17.1",
     "clobber": false
   },
   {
@@ -668,6 +672,10 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.30.6",
+    "clobber": false
+  },
+  {
     "source": "ghcr.io/metrostar/quartz-pkgs/build-tools@sha256:a38bcf9595dc06241a9a2c480b0c27eb3fb8219c923cd9160c9a22a3b0e33894",
     "clobber": false
   },
@@ -677,10 +685,6 @@
   },
   {
     "source": "ghcr.io/metrostar/quartz-pkgs/jenkins-mcp:0.1.0",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/ironbank/opensource/ollama/ollama:0.30.6",
     "clobber": false
   },
   {

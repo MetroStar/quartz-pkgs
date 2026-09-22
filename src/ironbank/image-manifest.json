@@ -694,5 +694,25 @@
   {
     "source": "ghcr.io/metrostar/quartz-pkgs/jenkins/inbound-agent:3355.v388858a_47b_33-22-jdk21",
     "clobber": false
+  },
+  {
+    "source": "public.ecr.aws/karpenter/controller:1.12.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-controller:v1.20.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-webhook:v1.20.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-cainjector:v1.20.2",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/jetstack/cert-manager-startupapicheck:v1.20.2",
+    "clobber": false
   }
 ]

@@ -347,6 +347,13 @@ echo "[6/6] Adding known auxiliary images..." >&2
 KNOWN_OPERATOR_IMAGES=(
   # Kaniko (used by Jenkins pipelines, not in any chart values)
   "gcr.io/kaniko-project/executor:v1.24.0-debug"
+  # Quartz Terraform-managed runtime images whose repositories are selected
+  # outside Helm chart values.
+  "public.ecr.aws/karpenter/controller:1.12.1"
+  "registry1.dso.mil/ironbank/jetstack/cert-manager-controller:v1.20.2"
+  "registry1.dso.mil/ironbank/jetstack/cert-manager-webhook:v1.20.2"
+  "registry1.dso.mil/ironbank/jetstack/cert-manager-cainjector:v1.20.2"
+  "ghcr.io/jetstack/cert-manager-startupapicheck:v1.20.2"
 )
 
 for img in "${KNOWN_OPERATOR_IMAGES[@]}"; do

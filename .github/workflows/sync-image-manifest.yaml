@@ -10,7 +10,7 @@ name: Sync image manifest
       quartz_ref:
         description: 'Quartz repo ref to read values from'
         required: false
-        default: 'feat/quartz-modernization'
+        default: 'main'
         type: string
   repository_dispatch:
     types: [sync-images]

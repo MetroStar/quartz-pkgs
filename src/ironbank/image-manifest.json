@@ -16,7 +16,7 @@
     "clobber": false
   },
   {
-    "source": "ghcr.io/agentgateway/controller:v1.2.1",
+    "source": "cr.agentgateway.dev/controller:v1.2.1",
     "clobber": false
   },
   {

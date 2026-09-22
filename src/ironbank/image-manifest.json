@@ -6,18 +6,18 @@
   {
     "source": "docker.io/busybox:latest",
     "clobber": false
+  },
   {
     "source": "registry1.dso.mil/ironbank/opensource/istio/install-cni:1.29.2",
     "clobber": false
   },
-  },
   {
     "source": "docker.io/dragonflyoss/client:v1.3.8",
     "clobber": false
+  },
   {
     "source": "ghcr.io/agentgateway/controller:v1.2.1",
     "clobber": false
-  },
   },
   {
     "source": "docker.io/dragonflyoss/dfinit:v1.3.8",

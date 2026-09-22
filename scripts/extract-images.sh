@@ -354,6 +354,7 @@ KNOWN_OPERATOR_IMAGES=(
   "registry1.dso.mil/ironbank/jetstack/cert-manager-webhook:v1.20.2"
   "registry1.dso.mil/ironbank/jetstack/cert-manager-cainjector:v1.20.2"
   "ghcr.io/jetstack/cert-manager-startupapicheck:v1.20.2"
+  "registry.k8s.io/dns/k8s-dns-node-cache:1.26.7"
 )
 
 for img in "${KNOWN_OPERATOR_IMAGES[@]}"; do

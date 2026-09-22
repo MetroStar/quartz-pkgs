@@ -714,5 +714,9 @@
   {
     "source": "quay.io/jetstack/cert-manager-startupapicheck:v1.20.2",
     "clobber": false
+  },
+  {
+    "source": "registry.k8s.io/dns/k8s-dns-node-cache:1.26.7",
+    "clobber": false
   }
 ]

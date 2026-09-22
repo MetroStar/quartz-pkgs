@@ -630,5 +630,41 @@
   {
     "source": "registry1.dso.mil/redis:8.4.0",
     "clobber": false
+  },
+  {
+    "source": "cr.agentgateway.dev/agentgateway:v1.2.1",
+    "clobber": false
+  },
+  {
+    "source": "cr.kagent.dev/kagent-dev/kagent/app:0.9.4",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.33",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/kagent-dev/kagent:v0.9.4",
+    "clobber": false
+  },
+  {
+    "source": "quay.io/argoprojlabs/argocd-image-updater:v1.2.1",
+    "clobber": false
+  },
+  {
+    "source": "quay.io/oauth2-proxy/oauth2-proxy:v7.7.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/external-dns:0.21.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/pause/pause:3.10",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/postgres/postgresql:18.1",
+    "clobber": false
   }
 ]

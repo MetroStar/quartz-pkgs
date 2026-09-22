@@ -59,7 +59,7 @@ echo "" >&2
 
 # Load existing manifest for clobber preservation
 EXISTING_MANIFEST="[]"
-if [[ -f "$OUTPUT_PATH" ]]; then
+if [[ -s "$OUTPUT_PATH" ]]; then
   EXISTING_MANIFEST=$(jq -rc '.' "$OUTPUT_PATH" 2>/dev/null || echo "[]")
 fi
 
@@ -300,7 +300,7 @@ echo "  Processed $HELM_CHART_COUNT upstream Helm charts" >&2
 ###############################################################################
 # 4. Quartz-specific images (from chart/values.yaml)
 ###############################################################################
-echo "[4/5] Extracting Quartz-specific images from values.yaml..." >&2
+echo "[4/6] Extracting Quartz-specific images from values.yaml..." >&2
 
 # Pattern 1: Full image references (registry/path:tag format in _image keys)
 grep -oP '(?:buildah_image|build_tools_image|maven_image|nodejs_image|cypress_image|playwright_image):\s*\K\S+' \
@@ -308,7 +308,7 @@ grep -oP '(?:buildah_image|build_tools_image|maven_image|nodejs_image|cypress_im
 
 # Pattern 2: Any string value that looks like a full image reference
 AUX_IMAGES_FROM_VALUES=$(yq -r '
-  .. | select(type == "!!str") | select(test("^(docker\\.io|quay\\.io|ghcr\\.io|gcr\\.io|public\\.ecr\\.aws|registry\\.k8s\\.io|registry1\\.dso\\.mil)/.*:"))
+  .. | select(type == "!!str") | select(test("^(docker\\.io|quay\\.io|ghcr\\.io|gcr\\.io|public\\.ecr\\.aws|registry\\.k8s\\.io|registry1\\.dso\\.mil|cr\\.kagent\\.dev|cr\\.agentgateway\\.dev|nvcr\\.io)/.*:"))
 ' "$QUARTZ_VALUES_PATH" 2>/dev/null || true)
 if [[ -n "$AUX_IMAGES_FROM_VALUES" ]]; then
   echo "$AUX_IMAGES_FROM_VALUES" >> "$IMAGES_FILE"
@@ -317,9 +317,30 @@ fi
 echo "  Extracted quartz images from values" >&2
 
 ###############################################################################
-# 5. Additional known images (operator-managed, not in chart defaults)
+# 5. Literal images in Quartz templates and Jenkins pod templates
 ###############################################################################
-echo "[5/5] Adding known auxiliary images..." >&2
+echo "[5/6] Extracting literal images from Quartz templates..." >&2
+
+QUARTZ_CHART_ROOT="$(cd "$(dirname "$QUARTZ_VALUES_PATH")" && pwd)"
+QUARTZ_REPO_ROOT="$(cd "${QUARTZ_CHART_ROOT}/.." && pwd)"
+IMAGE_SCAN_PATHS=(
+  "$QUARTZ_VALUES_PATH"
+  "$QUARTZ_CHART_ROOT/templates"
+  "$QUARTZ_CHART_ROOT/files/jenkins"
+)
+
+if command -v rg >/dev/null 2>&1; then
+  rg -o --no-filename \
+    '(docker\.io|quay\.io|ghcr\.io|gcr\.io|public\.ecr\.aws|registry\.k8s\.io|registry1\.dso\.mil|cr\.kagent\.dev|cr\.agentgateway\.dev|nvcr\.io)/[A-Za-z0-9._/@-]+:[A-Za-z0-9._+~-]+' \
+    "${IMAGE_SCAN_PATHS[@]}" 2>/dev/null | sort -u >> "$IMAGES_FILE" || true
+fi
+
+echo "  Scanned literal image references under ${QUARTZ_REPO_ROOT}" >&2
+
+###############################################################################
+# 6. Additional known images (operator-managed, not in chart defaults)
+###############################################################################
+echo "[6/6] Adding known auxiliary images..." >&2
 
 # Images deployed by operators/CRDs that aren't in Helm chart values
 # These are discovered once from a running cluster and maintained here

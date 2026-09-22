@@ -112,6 +112,8 @@ jobs:
 
           docker pull ${src_tag}
           docker tag ${src_tag} ${new_tag}
+          # Keep the rewritten upstream tag for Quartz deploy-time references.
+          # The timestamped tag below is an immutable archival snapshot.
           docker tag ${src_tag} ${new_tag}-${suffix}
           docker push ${new_tag}
           docker push ${new_tag}-${suffix}

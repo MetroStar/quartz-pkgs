@@ -712,7 +712,7 @@
     "clobber": false
   },
   {
-    "source": "ghcr.io/jetstack/cert-manager-startupapicheck:v1.20.2",
+    "source": "quay.io/jetstack/cert-manager-startupapicheck:v1.20.2",
     "clobber": false
   }
 ]

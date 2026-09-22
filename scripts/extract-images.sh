@@ -361,6 +361,7 @@ KNOWN_OPERATOR_IMAGES=(
   "registry1.dso.mil/ironbank/external-dns:v0.21.0-5530815"
   "registry1.dso.mil/ironbank/opensource/istio/pilot:1.29.2"
   "registry1.dso.mil/ironbank/opensource/istio/install-cni:1.29.2"
+  "registry1.dso.mil/ironbank/opensource/istio/ztunnel:1.29.1"
   "cr.agentgateway.dev/controller:v1.2.1"
 )
 

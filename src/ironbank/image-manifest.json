@@ -12,6 +12,10 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/istio/ztunnel:1.29.1",
+    "clobber": false
+  },
+  {
     "source": "docker.io/dragonflyoss/client:v1.3.8",
     "clobber": false
   },

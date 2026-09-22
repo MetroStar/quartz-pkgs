@@ -666,5 +666,33 @@
   {
     "source": "registry1.dso.mil/ironbank/opensource/postgres/postgresql:18.1",
     "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/build-tools@sha256:a38bcf9595dc06241a9a2c480b0c27eb3fb8219c923cd9160c9a22a3b0e33894",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/epyon:3.5.0",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/jenkins-mcp:0.1.0",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/ironbank/opensource/ollama/ollama:0.30.6",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/ironbank/opensource/containers/buildah:1.41.8",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/argoprojlabs/argocd-image-updater:v1.2.1",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/jenkins/inbound-agent:3355.v388858a_47b_33-22-jdk21",
+    "clobber": false
   }
 ]

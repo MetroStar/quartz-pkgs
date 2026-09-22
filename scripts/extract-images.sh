@@ -359,6 +359,7 @@ KNOWN_OPERATOR_IMAGES=(
   "quay.io/strimzi/operator:1.0.0"
   "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.30.6"
   "registry1.dso.mil/ironbank/external-dns:v0.21.0-5530815"
+  "registry1.dso.mil/ironbank/opensource/istio/pilot:1.29.2"
 )
 
 for img in "${KNOWN_OPERATOR_IMAGES[@]}"; do

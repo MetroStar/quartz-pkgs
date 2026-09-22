@@ -684,6 +684,10 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/istio/proxyv2:1.29.2",
+    "clobber": false
+  },
+  {
     "source": "ghcr.io/metrostar/quartz-pkgs/build-tools@sha256:a38bcf9595dc06241a9a2c480b0c27eb3fb8219c923cd9160c9a22a3b0e33894",
     "clobber": false
   },

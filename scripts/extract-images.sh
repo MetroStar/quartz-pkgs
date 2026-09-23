@@ -369,6 +369,7 @@ KNOWN_OPERATOR_IMAGES=(
   "ghcr.io/kagent-dev/kagent/ui:0.9.4"
   "docker.io/grafana/mcp-grafana:0.14.0"
   "docker.io/library/postgres:18.3-alpine"
+  "docker.io/library/redis:7.4.2-alpine3.21"
   "registry1.dso.mil/ironbank/opensource/kiali/kiali-operator:v2.27.0"
   "cr.agentgateway.dev/controller:v1.2.1"
 )

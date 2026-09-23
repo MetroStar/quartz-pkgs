@@ -24,6 +24,10 @@
     "clobber": false
   },
   {
+    "source": "docker.io/library/redis:7.4.2-alpine3.21",
+    "clobber": false
+  },
+  {
     "source": "docker.io/busybox:latest",
     "clobber": false
   },

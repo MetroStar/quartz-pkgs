@@ -363,6 +363,12 @@ KNOWN_OPERATOR_IMAGES=(
   "registry1.dso.mil/ironbank/opensource/istio/proxyv2:1.29.2"
   "registry1.dso.mil/ironbank/opensource/istio/install-cni:1.29.2"
   "registry1.dso.mil/ironbank/opensource/istio/ztunnel:1.29.1"
+  "registry1.dso.mil/ironbank/opensource/redis/redis8-slim:8.6.2"
+  "registry1.dso.mil/ironbank/bitnami/analytics/redis-exporter:v1.84.0"
+  "ghcr.io/kagent-dev/kagent/controller:0.9.4"
+  "ghcr.io/kagent-dev/kagent/ui:0.9.4"
+  "docker.io/grafana/mcp-grafana:0.14.0"
+  "docker.io/library/postgres:18.3-alpine"
   "registry1.dso.mil/ironbank/opensource/kiali/kiali-operator:v2.27.0"
   "cr.agentgateway.dev/controller:v1.2.1"
 )

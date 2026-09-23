@@ -4,6 +4,26 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/redis/redis8-slim:8.6.2",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/kagent-dev/kagent/controller:0.9.4",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/kagent-dev/kagent/ui:0.9.4",
+    "clobber": false
+  },
+  {
+    "source": "docker.io/grafana/mcp-grafana:0.14.0",
+    "clobber": false
+  },
+  {
+    "source": "docker.io/library/postgres:18.3-alpine",
+    "clobber": false
+  },
+  {
     "source": "docker.io/busybox:latest",
     "clobber": false
   },

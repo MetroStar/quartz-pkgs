@@ -40,6 +40,10 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/jmx-exporter:1.0.1",
+    "clobber": false
+  },
+  {
     "source": "docker.io/busybox:latest",
     "clobber": false
   },

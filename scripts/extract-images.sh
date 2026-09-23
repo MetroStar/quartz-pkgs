@@ -373,6 +373,7 @@ KNOWN_OPERATOR_IMAGES=(
   "registry1.dso.mil/ironbank/neuvector/neuvector/controller:5.5.2"
   "registry1.dso.mil/ironbank/neuvector/neuvector/enforcer:5.5.2"
   "registry1.dso.mil/ironbank/neuvector/neuvector/manager:5.5.2"
+  "registry1.dso.mil/ironbank/opensource/prometheus/jmx-exporter:1.0.1"
   "registry1.dso.mil/ironbank/opensource/kiali/kiali-operator:v2.27.0"
   "cr.agentgateway.dev/controller:v1.2.1"
 )

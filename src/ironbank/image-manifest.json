@@ -28,6 +28,18 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/controller:5.5.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/enforcer:5.5.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/manager:5.5.2",
+    "clobber": false
+  },
+  {
     "source": "docker.io/busybox:latest",
     "clobber": false
   },

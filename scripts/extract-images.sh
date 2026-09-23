@@ -370,6 +370,9 @@ KNOWN_OPERATOR_IMAGES=(
   "docker.io/grafana/mcp-grafana:0.14.0"
   "docker.io/library/postgres:18.3-alpine"
   "docker.io/library/redis:7.4.2-alpine3.21"
+  "registry1.dso.mil/ironbank/neuvector/neuvector/controller:5.5.2"
+  "registry1.dso.mil/ironbank/neuvector/neuvector/enforcer:5.5.2"
+  "registry1.dso.mil/ironbank/neuvector/neuvector/manager:5.5.2"
   "registry1.dso.mil/ironbank/opensource/kiali/kiali-operator:v2.27.0"
   "cr.agentgateway.dev/controller:v1.2.1"
 )

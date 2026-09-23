@@ -363,6 +363,7 @@ KNOWN_OPERATOR_IMAGES=(
   "registry1.dso.mil/ironbank/opensource/istio/proxyv2:1.29.2"
   "registry1.dso.mil/ironbank/opensource/istio/install-cni:1.29.2"
   "registry1.dso.mil/ironbank/opensource/istio/ztunnel:1.29.1"
+  "registry1.dso.mil/ironbank/opensource/kiali/kiali-operator:v2.27.0"
   "cr.agentgateway.dev/controller:v1.2.1"
 )
 

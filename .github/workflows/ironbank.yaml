@@ -11,7 +11,7 @@ name: Synchronize Quartz image mirror
 env:
   REGISTRY: ghcr.io
   IMAGE_REPOSITORY: ${{ github.repository }}
-  MIRRORED_REGISTRIES: registry1.dso.mil registry.dso.mil quay.io ghcr.io cr.agentgateway.dev docker.io gcr.io public.ecr.aws registry.k8s.io
+  MIRRORED_REGISTRIES: registry1.dso.mil registry.dso.mil quay.io ghcr.io cr.agentgateway.dev cr.kagent.dev docker.io gcr.io public.ecr.aws registry.k8s.io nvcr.io
 
 jobs:
   generate-matrix:
@@ -108,10 +108,17 @@ jobs:
           src_tag=${{ matrix.manifest }}
           dest_tag=$(echo ${REGISTRY}/${IMAGE_REPOSITORY} | tr '[:upper:]' '[:lower:]')
           new_tag=$(echo ${src_tag} | sed "s;^\(${MIRRORED_REGISTRIES// /\\|}\);${dest_tag};g")
+          # Iron Bank publishes external-dns with a build suffix, while
+          # Quartz deploys the stable upstream-compatible v0.21.0 tag.
+          if [[ "${src_tag}" =~ ^registry1\.dso\.mil/ironbank/external-dns:v0\.21\.0-[0-9]+$ ]]; then
+            new_tag="${dest_tag}/ironbank/external-dns:v0.21.0"
+          fi
           suffix=${{ needs.generate-matrix.outputs.suffix }}
 
           docker pull ${src_tag}
           docker tag ${src_tag} ${new_tag}
+          # Keep the rewritten upstream tag for Quartz deploy-time references.
+          # The timestamped tag below is an immutable archival snapshot.
           docker tag ${src_tag} ${new_tag}-${suffix}
           docker push ${new_tag}
           docker push ${new_tag}-${suffix}

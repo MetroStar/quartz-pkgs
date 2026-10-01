@@ -192,19 +192,19 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/analytics/redis-exporter:v1.83.0",
+    "source": "registry1.dso.mil/ironbank/bitnami/analytics/redis-exporter:v1.83.0",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/bitnami/mysql8:8.0.36-debian-11-r1",
+    "source": "registry1.dso.mil/ironbank/bitnami/mysql8:8.0.36-debian-11-r1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/goharbor/harbor-db:v2.14.1",
+    "source": "docker.io/goharbor/harbor-db:v2.14.1",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/goharbor/redis-photon:v2.14.1",
+    "source": "docker.io/goharbor/redis-photon:v2.14.1",
     "clobber": false
   },
   {
@@ -676,15 +676,11 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/neuvector/compliance-config:5.4.8",
+    "source": "docker.io/rancher/neuvector-compliance-config:1.0.17",
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/opensource/postgres/postgresql:18.4",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/redis:8.4.0",
+    "source": "registry1.dso.mil/ironbank/opensource/redis/redis8-slim:8.4.0",
     "clobber": false
   },
   {
@@ -697,10 +693,6 @@
   },
   {
     "source": "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.33",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/kagent-dev/kagent:v0.9.4",
     "clobber": false
   },
   {

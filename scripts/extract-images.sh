@@ -391,6 +391,43 @@ echo "=== Building manifest ===" >&2
 
 # Deduplicate and sort, filter out empty lines and localhost refs
 FINAL_IMAGES=$(sort -u "$IMAGES_FILE" | grep -v "^$\|^localhost" | grep ":" || true)
+
+# Keep legacy Big Bang image aliases mapped to their actual publishing registries.
+normalize_image_source() {
+  local image="$1"
+
+  case "$image" in
+    registry1.dso.mil/analytics/redis-exporter:*)
+      printf 'registry1.dso.mil/ironbank/bitnami/analytics/redis-exporter%s\n' "${image#registry1.dso.mil/analytics/redis-exporter}"
+      ;;
+    registry1.dso.mil/bitnami/mysql8:*)
+      printf 'registry1.dso.mil/ironbank/bitnami/mysql8%s\n' "${image#registry1.dso.mil/bitnami/mysql8}"
+      ;;
+    registry1.dso.mil/goharbor/harbor-db:*|registry1.dso.mil/goharbor/redis-photon:*)
+      printf 'docker.io/goharbor/%s\n' "${image#registry1.dso.mil/goharbor/}"
+      ;;
+    registry1.dso.mil/neuvector/compliance-config:*)
+      printf '%s\n' 'docker.io/rancher/neuvector-compliance-config:1.0.17'
+      ;;
+    registry1.dso.mil/opensource/postgres/postgresql:*)
+      printf 'registry1.dso.mil/ironbank/opensource/postgres/postgresql%s\n' "${image#registry1.dso.mil/opensource/postgres/postgresql}"
+      ;;
+    registry1.dso.mil/redis:*)
+      printf 'registry1.dso.mil/ironbank/opensource/redis/redis8-slim%s\n' "${image#registry1.dso.mil/redis}"
+      ;;
+    ghcr.io/kagent-dev/kagent:v0.9.4)
+      printf '%s\n' 'ghcr.io/kagent-dev/kagent/controller:0.9.4'
+      ;;
+    *)
+      printf '%s\n' "$image"
+      ;;
+  esac
+}
+
+FINAL_IMAGES=$(while IFS= read -r image; do
+  [[ -n "$image" ]] || continue
+  normalize_image_source "$image"
+done <<< "$FINAL_IMAGES" | sort -u)
 IMAGE_COUNT=$(echo "$FINAL_IMAGES" | grep -c "." || echo 0)
 
 # Build JSON array preserving clobber flags from existing manifest

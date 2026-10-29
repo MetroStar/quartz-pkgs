@@ -24,7 +24,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   EVALUATOR_SOURCE_SHA: 0da9ac4da2a38331786c1cf16396928fb099a8fb
   # Bump the runtime revision for packaging changes; never republish an old tag.
-  EVALUATOR_IMAGE_TAG: source-0da9ac4da2a3-r2
+  EVALUATOR_IMAGE_TAG: source-0da9ac4da2a3-r3
 
 jobs:
   validate:
@@ -45,6 +45,13 @@ jobs:
         test "$(git -C src/quartz-evaluator/upstream rev-parse HEAD)" = "$EVALUATOR_SOURCE_SHA"
     - name: Verify native-toolchain patches
       run: python3 scripts/verify-quartz-evaluator.py src/quartz-evaluator/upstream
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - name: Verify locked Sonar scanner dependencies
+      run: |
+        npm ci --ignore-scripts --omit=dev --prefix src/quartz-evaluator/sonar-scanner
+        npm audit --omit=dev --prefix src/quartz-evaluator/sonar-scanner
 
   build-and-push-image:
     name: Build image

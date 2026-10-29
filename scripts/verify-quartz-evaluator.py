@@ -51,6 +51,8 @@ for tool in git jq nmap node npm java sonar-scanner-npm syft grype trivy truffle
     command -v "$tool"
 done
 sonar-scanner-npm --version
+npm ls --omit=dev --prefix /opt/sonar-scanner
+node -e 'if (require("/opt/sonar-scanner/node_modules/node-forge/package.json").version !== "1.4.2") process.exit(1)'
 checkov --version
 clamscan --version
 """,

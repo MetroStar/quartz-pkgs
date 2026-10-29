@@ -53,9 +53,7 @@ RUN set -eux; \
 
 # Scanner binaries not packaged in the base image, installed to /usr/local/bin
 # via each project's official install script. Versions float to latest stable
-# so the nightly image rebuild tracks upstream scanner releases (see
-# .github/workflows/quartz-evaluator.yaml); pin a VERSION here for air-gapped reproducible
-# builds if required.
+# when the image workflow runs; packaging changes require a new runtime revision.
 #   syft       - SBOM layer (run-sbom-scan.sh / run-complete-sbom-scan.sh)
 #   grype      - Vulnerability + Anchore layers (run-grype-scan.sh, run-anchore-scan.sh)
 #   trivy      - Container/filesystem layer (run-trivy-scan.sh)
@@ -91,7 +89,9 @@ RUN python3 -m pip install --no-cache-dir fastapi uvicorn aiofiles python-multip
 
 # SonarQube scanner for the Code Quality layer. Install it during the image
 # build so CI scans do not try to download npm packages at runtime.
-RUN npm install -g sonarqube-scanner@5.0.2 \
+COPY sonar-scanner/package.json sonar-scanner/package-lock.json /opt/sonar-scanner/
+RUN npm ci --omit=dev --prefix /opt/sonar-scanner \
+    && ln -s /opt/sonar-scanner/node_modules/.bin/sonar-scanner-npm /usr/local/bin/sonar-scanner-npm \
     && command -v node \
     && command -v npm \
     && command -v npx \

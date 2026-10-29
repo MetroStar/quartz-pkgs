@@ -91,11 +91,11 @@ RUN python3 -m pip install --no-cache-dir fastapi uvicorn aiofiles python-multip
 
 # SonarQube scanner for the Code Quality layer. Install it during the image
 # build so CI scans do not try to download npm packages at runtime.
-RUN npm install -g sonarqube-scanner \
+RUN npm install -g sonarqube-scanner@5.0.2 \
     && command -v node \
     && command -v npm \
     && command -v npx \
-    && command -v sonar-scanner
+    && command -v sonar-scanner-npm
 
 COPY upstream/ /app/
 
@@ -536,14 +536,16 @@ else
     2>&1 | tee "$SCANNER_LOG"
 fi
 """,
-    """if command -v sonar-scanner >/dev/null 2>&1; then
+    """if command -v sonar-scanner-npm >/dev/null 2>&1; then
+  SONAR_SCANNER=(sonar-scanner-npm)
+elif command -v sonar-scanner >/dev/null 2>&1; then
   SONAR_SCANNER=(sonar-scanner)
 elif command -v sonarqube-scanner >/dev/null 2>&1; then
   SONAR_SCANNER=(sonarqube-scanner)
 elif command -v npx >/dev/null 2>&1; then
   SONAR_SCANNER=(npx --yes sonarqube-scanner)
 else
-  echo "[ERROR] Neither sonarqube-scanner, sonar-scanner, nor npx is available in this image." >&2
+  echo "[ERROR] None of sonar-scanner-npm, sonar-scanner, sonarqube-scanner, or npx is available in this image." >&2
   exit 1
 fi
 
@@ -755,4 +757,5 @@ ENV EPYON_SCANS_DIR=/data/scans
 
 EXPOSE 8056
 
+ENTRYPOINT []
 CMD ["python3", "-m", "uvicorn", "web.api.main:app", "--host", "0.0.0.0", "--port", "8056"]

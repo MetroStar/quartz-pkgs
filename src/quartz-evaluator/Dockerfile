@@ -3,7 +3,7 @@ FROM registry1.dso.mil/ironbank/opensource/python:v3.14 AS base
 
 USER root
 
-# System binaries the scan runner shells out to. The in-cluster epyon pod runs
+# System binaries the scan runner shells out to. The in-cluster Quartz Evaluator pod runs
 # hardened (no docker/podman), so every scanner script that would normally fall
 # back to a container runtime instead skips. To run a FULL scan in-pod, the
 # scanners must be present as native binaries. Each run-*-scan.sh prefers a
@@ -53,9 +53,7 @@ RUN set -eux; \
 
 # Scanner binaries not packaged in the base image, installed to /usr/local/bin
 # via each project's official install script. Versions float to latest stable
-# so the nightly image rebuild tracks upstream scanner releases (see
-# .github/workflows/epyon.yaml); pin a VERSION here for air-gapped reproducible
-# builds if required.
+# when the image workflow runs; packaging changes require a new runtime revision.
 #   syft       - SBOM layer (run-sbom-scan.sh / run-complete-sbom-scan.sh)
 #   grype      - Vulnerability + Anchore layers (run-grype-scan.sh, run-anchore-scan.sh)
 #   trivy      - Container/filesystem layer (run-trivy-scan.sh)
@@ -71,7 +69,7 @@ RUN set -eux; \
     curl -sSfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3    | bash; \
     syft version && grype version && trivy --version && trufflehog --version && xeol version && helm version
 
-# Runtime Python deps for the epyon web API + pip-installed scanners:
+# Runtime Python deps for the Quartz Evaluator web API + pip-installed scanners:
 #   fastapi/uvicorn       - ASGI app + server
 #   aiofiles/python-multipart - async file IO + form uploads
 #   httpx                 - REQUIRED: web/api/github_sync.py imports it at module
@@ -91,22 +89,24 @@ RUN python3 -m pip install --no-cache-dir fastapi uvicorn aiofiles python-multip
 
 # SonarQube scanner for the Code Quality layer. Install it during the image
 # build so CI scans do not try to download npm packages at runtime.
-RUN npm install -g sonarqube-scanner \
+COPY sonar-scanner/package.json sonar-scanner/package-lock.json /opt/sonar-scanner/
+RUN npm ci --omit=dev --prefix /opt/sonar-scanner \
+    && ln -s /opt/sonar-scanner/node_modules/.bin/sonar-scanner-npm /usr/local/bin/sonar-scanner-npm \
     && command -v node \
     && command -v npm \
     && command -v npx \
-    && command -v sonar-scanner
+    && command -v sonar-scanner-npm
 
-COPY epyon/ /app/
+COPY upstream/ /app/
 
-# The GitHub Actions checkout used to populate src/epyon/epyon may include a
+# The GitHub Actions checkout used to populate src/quartz-evaluator/upstream may include a
 # CI-only HTTP extraheader in .git/config. If that metadata is copied into the
 # runtime image, scanner jobs send a stale credential when cloning any GitHub
 # target, causing even public repositories to fail with an auth prompt. Exclude
 # .git via .dockerignore so credential-bearing metadata never enters the image.
 RUN git config --global --unset-all http.https://github.com/.extraheader || true
 
-# Quartz runs the Epyon scanner in hardened Kubernetes/Jenkins pods where a
+# Quartz runs the Quartz Evaluator scanner in hardened Kubernetes/Jenkins pods where a
 # Docker daemon/socket is intentionally unavailable. The upstream scripts are
 # workstation-friendly and globally require Docker before dispatching scan
 # layers, even for analysis-mode layers that can run from native CLIs. Patch the
@@ -204,15 +204,14 @@ echo ""
 
 replace(
     "/app/scripts/shell/run-target-security-scan.sh",
-    """# Create dedicated scan directory
-REPORTS_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+    """# Create dedicated scan directory (REPORTS_ROOT is defined near the top of
+# the script, alongside REPO_ROOT/SCRIPT_DIR).
 SCAN_DIR="$REPORTS_ROOT/scans/$SCAN_ID"
 mkdir -p "$SCAN_DIR"
 """,
     """# Create dedicated scan directory. In Kubernetes/Jenkins, EPYON_SCANS_DIR
 # points at the mounted persistent scan volume; local workstation runs keep the
 # upstream reports-root default.
-REPORTS_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 SCAN_ROOT="${EPYON_SCANS_DIR:-$REPORTS_ROOT/scans}"
 SCAN_DIR="$SCAN_ROOT/$SCAN_ID"
 mkdir -p "$SCAN_DIR"
@@ -340,9 +339,13 @@ regex_replace(
     "/app/scripts/shell/run-xeol-scan.sh",
     r"""        # Run xeol scan with Docker using cached/updated database
         if \[ "\$scan_type" = "dir" \]; then
-            # For directory scans, mount the target directory
+            # For directory scans, mount the target directory\. docker run's -v
+            # source is resolved by the HOST daemon \(see to_host_path\(\) in
+            # scan-directory-template\.sh\) — translate before use\.
+            local target_host
+            target_host="\$\(to_host_path "\$target"\)"
             \$\{CONTAINER_CLI\} run --rm \\
-                -v "\$target:/workspace:ro" \\
+                -v "\$target_host:/workspace:ro" \\
                 -v "\$XEOL_CACHE_VOL:/root/\.cache" \\
                 noqcks/xeol:latest \\
                 dir:/workspace \\
@@ -362,8 +365,10 @@ regex_replace(
         if [ -n "$LOCAL_XEOL" ] && [ "$scan_type" = "dir" ]; then
             "$LOCAL_XEOL" dir:"$target" -o json 2>>"$SCAN_LOG" > "$full_output_path"
         elif [ "$scan_type" = "dir" ]; then
+            local target_host
+            target_host="$(to_host_path "$target")"
             ${CONTAINER_CLI} run --rm \\
-                -v "$target:/workspace:ro" \\
+                -v "$target_host:/workspace:ro" \\
                 -v "$XEOL_CACHE_VOL:/root/.cache" \\
                 noqcks/xeol:latest \\
                 dir:/workspace \\
@@ -483,49 +488,6 @@ elif [ -n "${CONTAINER_CLI:-}" ]; then
 )
 
 replace(
-    "/app/scripts/shell/run-grype-scan.sh",
-    """# Show database info
-echo -e "${CYAN}📋 Checking Grype database status...${NC}"
-${CONTAINER_CLI} run --rm \\
-    -e GRYPE_DB_CACHE_DIR=/cache \\
-    -v "$GRYPE_CACHE_VOL:/cache" \\
-    anchore/grype:latest \\
-    db status 2>&1 | tee -a "$SCAN_LOG"
-echo
-""",
-    """# Show database info
-echo -e "${CYAN}📋 Checking Grype database status...${NC}"
-if [ -n "$LOCAL_GRYPE" ]; then
-    "$LOCAL_GRYPE" db status 2>&1 | tee -a "$SCAN_LOG" || true
-else
-    ${CONTAINER_CLI} run --rm \\
-        -e GRYPE_DB_CACHE_DIR=/cache \\
-        -v "$GRYPE_CACHE_VOL:/cache" \\
-        anchore/grype:latest \\
-        db status 2>&1 | tee -a "$SCAN_LOG"
-fi
-echo
-""",
-)
-
-replace(
-    "/app/scripts/shell/run-grype-scan.sh",
-    """            local sbom_zero
-            sbom_zero=$(jq -r '[.matches[] | select(.artifact.version=="0.0.0")] | length' "$output_file" 2>/dev/null || echo "0")
-""",
-    """            sbom_zero=$(jq -r '[.matches[] | select(.artifact.version=="0.0.0")] | length' "$output_file" 2>/dev/null || echo "0")
-""",
-)
-
-replace(
-    "/app/scripts/shell/run-grype-scan.sh",
-    """                local tmp_sbom="${output_file}.tmp"
-""",
-    """                tmp_sbom="${output_file}.tmp"
-""",
-)
-
-replace(
     "/app/scripts/shell/run-sonar-analysis.sh",
     """if [[ "$SONAR_HOST_URL" != https://* ]]; then
   echo "[ERROR] SONAR_HOST_URL must use HTTPS to protect transmitted credentials and source code." >&2
@@ -574,14 +536,16 @@ else
     2>&1 | tee "$SCANNER_LOG"
 fi
 """,
-    """if command -v sonar-scanner >/dev/null 2>&1; then
+    """if command -v sonar-scanner-npm >/dev/null 2>&1; then
+  SONAR_SCANNER=(sonar-scanner-npm)
+elif command -v sonar-scanner >/dev/null 2>&1; then
   SONAR_SCANNER=(sonar-scanner)
 elif command -v sonarqube-scanner >/dev/null 2>&1; then
   SONAR_SCANNER=(sonarqube-scanner)
 elif command -v npx >/dev/null 2>&1; then
   SONAR_SCANNER=(npx --yes sonarqube-scanner)
 else
-  echo "[ERROR] Neither sonarqube-scanner, sonar-scanner, nor npx is available in this image." >&2
+  echo "[ERROR] None of sonar-scanner-npm, sonar-scanner, sonarqube-scanner, or npx is available in this image." >&2
   exit 1
 fi
 
@@ -774,8 +738,8 @@ replace(
 PY
 
 RUN chown -R 1000:1000 /app && \
-    (getent group 1000 >/dev/null || echo 'epyon:x:1000:' >> /etc/group) && \
-    (getent passwd 1000 >/dev/null || echo 'epyon:x:1000:1000:Epyon:/tmp:/sbin/nologin' >> /etc/passwd) && \
+    (getent group 1000 >/dev/null || echo 'quartz-evaluator:x:1000:' >> /etc/group) && \
+    (getent passwd 1000 >/dev/null || echo 'quartz-evaluator:x:1000:1000:Quartz Evaluator:/tmp:/sbin/nologin' >> /etc/passwd) && \
     mkdir -p /data/scans && \
     chown -R 1000:1000 /data && \
     mkdir -p /var/lib/clamav /var/log/clamav && \
@@ -793,4 +757,5 @@ ENV EPYON_SCANS_DIR=/data/scans
 
 EXPOSE 8056
 
+ENTRYPOINT []
 CMD ["python3", "-m", "uvicorn", "web.api.main:app", "--host", "0.0.0.0", "--port", "8056"]

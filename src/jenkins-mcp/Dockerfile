@@ -5,7 +5,7 @@
 # kagent.dev MCPServer resource and consumed by the cicd-agent.
 #
 # Built from the Iron Bank hardened Python base (matching the other quartz-pkgs
-# images, e.g. epyon) rather than Docker Hub. The Iron Bank image already ships
+# images, e.g. quartz-evaluator) rather than Docker Hub. The Iron Bank image already ships
 # a non-root user (uid 1000), which satisfies the cluster Kyverno
 # require-non-root-user / require-non-root-group policies.
 ARG PYTHON_VERSION=v3.11.8

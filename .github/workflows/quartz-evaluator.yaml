@@ -1,32 +1,65 @@
-name: epyon image
+name: quartz-evaluator image
 
 'on':
   workflow_dispatch: {}
+  pull_request:
+    branches:
+    - main
+    paths:
+    - .github/workflows/quartz-evaluator.yaml
+    - .github/workflows/quartz-evaluator-scan.yaml
+    - scripts/verify-quartz-evaluator.py
+    - src/quartz-evaluator/**
   push:
     branches:
     - main
     paths:
-    - .github/workflows/epyon.yaml
-    - .github/workflows/epyon-scan.yaml
-    - src/epyon/**
+    - .github/workflows/quartz-evaluator.yaml
+    - .github/workflows/quartz-evaluator-scan.yaml
+    - scripts/verify-quartz-evaluator.py
+    - src/quartz-evaluator/**
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  EVALUATOR_SOURCE_SHA: 0da9ac4da2a38331786c1cf16396928fb099a8fb
+  # Bump the runtime revision for packaging changes; never republish an old tag.
+  EVALUATOR_IMAGE_TAG: source-0da9ac4da2a3-r1
 
 jobs:
+  validate:
+    name: Verify pinned scanner patches
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Fetch pinned scanner without submodules
+      run: |
+        git clone --depth 1 --branch demo/quartz-evaluator --no-recurse-submodules \
+          https://github.com/MetroStar/epyon.git src/quartz-evaluator/upstream
+        git -C src/quartz-evaluator/upstream fetch --depth 1 origin "$EVALUATOR_SOURCE_SHA"
+        git -C src/quartz-evaluator/upstream checkout --detach FETCH_HEAD
+        test "$(git -C src/quartz-evaluator/upstream rev-parse HEAD)" = "$EVALUATOR_SOURCE_SHA"
+    - name: Verify native-toolchain patches
+      run: python3 scripts/verify-quartz-evaluator.py src/quartz-evaluator/upstream
+
   build-and-push-image:
     name: Build image
+    if: github.event_name != 'pull_request'
+    needs: validate
 
     # Self-hosted runner required: registry1.dso.mil (Ironbank) enforces an IP
     # Other image builds in this repo (nodejs, jenkins, build-tools) prove that
-    # public runners can reach registry1.dso.mil. The epyon workflow is the only
+    # public runners can reach registry1.dso.mil. The quartz-evaluator workflow is the only
     # one with a cross-repo checkout step; placing it before the Docker login
     # steps caused the Ironbank login to fail ("connection refused") — likely
     # because actions/checkout@v4 leaves a GitHub credential extraheader in the
     # runner's global git config that interferes with Docker's HTTPS credential
     # handling. Moving all Docker setup/login steps before the cross-repo
-    # checkout resolves the issue (epyon source is only needed for the build
+    # checkout resolves the issue (quartz-evaluator source is only needed for the build
     # step, not the login steps).
     runs-on: ubuntu-latest
 
@@ -60,7 +93,7 @@ jobs:
         username: ${{ secrets.IRONBANK_USERNAME }}
         password: ${{ secrets.IRONBANK_PASSWORD }}
 
-    - name: Checkout Epyon
+    - name: Checkout pinned Quartz Evaluator source
       # actions/checkout@v4 fails on MetroStar/epyon because the repo has a
       # gitlink entry (.bats/bats-core) with no corresponding .gitmodules URL,
       # causing git to exit 128. Using git clone --no-recurse-submodules skips
@@ -70,33 +103,40 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: |
-        git clone --depth 1 --branch main --no-recurse-submodules \
+        git clone --depth 1 --branch demo/quartz-evaluator --no-recurse-submodules \
           "https://x-access-token:${GITHUB_TOKEN}@github.com/MetroStar/epyon.git" \
-          src/epyon/epyon
+          src/quartz-evaluator/upstream
+        git -C src/quartz-evaluator/upstream fetch --depth 1 origin "$EVALUATOR_SOURCE_SHA"
+        git -C src/quartz-evaluator/upstream checkout --detach FETCH_HEAD
+        test "$(git -C src/quartz-evaluator/upstream rev-parse HEAD)" = "$EVALUATOR_SOURCE_SHA"
+
+    - name: Verify native-toolchain patches
+      run: python3 scripts/verify-quartz-evaluator.py src/quartz-evaluator/upstream
 
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/epyon
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/quartz-evaluator
         tags: |
-          type=raw,value=3.5.0
-          type=raw,value=3.5.0-{{date 'YYYYMMDD'}}
-          type=sha
+          type=raw,value=${{ env.EVALUATOR_IMAGE_TAG }}
+        labels: |
+          org.opencontainers.image.source=https://github.com/MetroStar/epyon
+          org.opencontainers.image.revision=${{ env.EVALUATOR_SOURCE_SHA }}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v6
       with:
-        context: src/epyon
+        context: src/quartz-evaluator
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: linux/amd64,linux/arm64
 
   scan:
-    name: Epyon security scan
+    name: Quartz Evaluator security scan
     needs: build-and-push-image
-    uses: ./.github/workflows/epyon-scan.yaml
+    uses: ./.github/workflows/quartz-evaluator-scan.yaml
     with:
       scan_mode: full
       fail_on_critical: true

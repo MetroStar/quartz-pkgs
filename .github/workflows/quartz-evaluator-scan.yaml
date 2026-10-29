@@ -1,4 +1,4 @@
-name: Epyon Security Scan
+name: Quartz Evaluator Security Scan
 
 'on':
   workflow_call:
@@ -15,9 +15,11 @@ name: Epyon Security Scan
         default: true
 
 jobs:
-  epyon-scan:
-    name: Epyon scan (${{ inputs.scan_mode }})
-    uses: MetroStar/epyon/.github/workflows/epyon-scan.yml@main
+  quartz-evaluator-scan:
+    name: Quartz Evaluator scan (${{ inputs.scan_mode }})
+    # Workflow fix: MetroStar/epyon#187. Scanner branding is pinned separately.
+    uses: MetroStar/epyon/.github/workflows/epyon-scan.yml@ab22ffc47cd18aad3fe55a52fba40973dfb37cc7
     with:
+      scanner_ref: 0da9ac4da2a38331786c1cf16396928fb099a8fb
       scan_mode: ${{ inputs.scan_mode }}
       fail_on_critical: ${{ inputs.fail_on_critical }}

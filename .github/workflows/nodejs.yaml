@@ -80,7 +80,7 @@ jobs:
           NODEJS_VERSION=${{ env.NODEJS_VERSION }}
 
   scan:
-    name: Epyon security scan
+    name: Quartz Evaluator security scan
     needs: build-and-push-image
-    uses: ./.github/workflows/epyon-scan.yaml
+    uses: ./.github/workflows/quartz-evaluator-scan.yaml
     secrets: inherit

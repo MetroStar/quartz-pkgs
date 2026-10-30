@@ -108,6 +108,10 @@
     "clobber": false
   },
   {
+    "source": "docker.io/ollama/ollama:0.40.12",
+    "clobber": false
+  },
+  {
     "source": "quay.io/strimzi/operator:1.0.0",
     "clobber": false
   },
@@ -717,6 +721,10 @@
   },
   {
     "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.30.6",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.40.12",
     "clobber": false
   },
   {

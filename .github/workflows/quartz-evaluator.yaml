@@ -22,9 +22,9 @@ name: quartz-evaluator image
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  EVALUATOR_SOURCE_SHA: 0da9ac4da2a38331786c1cf16396928fb099a8fb
+  EVALUATOR_SOURCE_SHA: db6daad8c203055e038190ebb6f480cf72093ebb
   # Bump the runtime revision for packaging changes; never republish an old tag.
-  EVALUATOR_IMAGE_TAG: source-0da9ac4da2a3-r3
+  EVALUATOR_IMAGE_TAG: source-db6daad8c203-r1
 
 jobs:
   validate:
@@ -131,7 +131,27 @@ jobs:
           org.opencontainers.image.source=https://github.com/MetroStar/epyon
           org.opencontainers.image.revision=${{ env.EVALUATOR_SOURCE_SHA }}
 
+    - name: Preserve an already published immutable source tag
+      id: delivery
+      run: |
+        image="${REGISTRY}/${IMAGE_NAME}/quartz-evaluator:${EVALUATOR_IMAGE_TAG}"
+        if docker buildx imagetools inspect "$image" --format '{{json .Image}}' \
+            > image-configs.json 2> image-inspect-error.log; then
+          jq -e --arg source "$EVALUATOR_SOURCE_SHA" '
+            keys == ["linux/amd64", "linux/arm64"] and
+            all(.[]; .config.Labels["org.opencontainers.image.revision"] == $source)
+          ' image-configs.json
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+          echo "Reusing the verified, published source tag without overwriting it."
+        elif grep -Fq "$image: not found" image-inspect-error.log; then
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+        else
+          cat image-inspect-error.log >&2
+          exit 1
+        fi
+
     - name: Build and push Docker image
+      if: steps.delivery.outputs.exists != 'true'
       uses: docker/build-push-action@v6
       with:
         context: src/quartz-evaluator

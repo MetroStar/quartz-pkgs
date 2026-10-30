@@ -105,6 +105,22 @@ class EvaluatorRuntimeTests(unittest.TestCase):
         self.assertIn("source revision", result.stderr)
         self.assertFalse((self.root / "build/build-summary.json").exists())
 
+    def test_native_trivy_reads_verified_oci_layout(self):
+        layout = self.root / "oci-layout"
+        result = subprocess.run([
+            sys.executable, str(SCRIPTS / "import-build-archive.py"),
+            str(self.archive(self.revision)), str(self.target), str(self.root / "build"),
+            "--oci-layout", str(layout),
+        ], capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        result = subprocess.run([
+            "trivy", "image", "--input", str(layout), "--scanners", "secret",
+            "--offline-scan", "--skip-db-update", "--skip-java-db-update",
+            "--skip-check-update", "--format", "json",
+        ], capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(json.loads(result.stdout)["ArtifactType"], "container_image")
+
     def test_corrupt_layer_is_rejected(self):
         result = self.run_import(self.archive(self.revision, corrupt=True))
         self.assertNotEqual(result.returncode, 0)

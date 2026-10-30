@@ -9,6 +9,7 @@ name: quartz-evaluator image
     - .github/workflows/quartz-evaluator.yaml
     - .github/workflows/quartz-evaluator-scan.yaml
     - scripts/verify-quartz-evaluator.py
+    - scripts/test-quartz-evaluator-runtime.py
     - src/quartz-evaluator/**
   push:
     branches:
@@ -17,14 +18,15 @@ name: quartz-evaluator image
     - .github/workflows/quartz-evaluator.yaml
     - .github/workflows/quartz-evaluator-scan.yaml
     - scripts/verify-quartz-evaluator.py
+    - scripts/test-quartz-evaluator-runtime.py
     - src/quartz-evaluator/**
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  EVALUATOR_SOURCE_SHA: db6daad8c203055e038190ebb6f480cf72093ebb
+  EVALUATOR_SOURCE_SHA: fdcd80fa50d9dfa992b6b5b1cdbfa573095b7d95
   # Bump the runtime revision for packaging changes; never republish an old tag.
-  EVALUATOR_IMAGE_TAG: source-db6daad8c203-r1
+  EVALUATOR_IMAGE_TAG: source-fdcd80fa50d9-r1
 
 jobs:
   validate:
@@ -159,6 +161,40 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: linux/amd64,linux/arm64
+
+  runtime:
+    name: Native runtime (${{ matrix.arch }})
+    needs: build-and-push-image
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - arch: amd64
+          runner: ubuntu-latest
+        - arch: arm64
+          runner: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: read
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Test published image as an unprivileged native process
+      run: |
+        image="${REGISTRY}/${IMAGE_NAME,,}/quartz-evaluator:${EVALUATOR_IMAGE_TAG}"
+        docker run --rm --platform "linux/${{ matrix.arch }}" \
+          --user 1000:1000 --cap-drop ALL --security-opt no-new-privileges \
+          --read-only --tmpfs /tmp:rw,size=256m \
+          -e HOME=/tmp -e PYTHONDONTWRITEBYTECODE=1 \
+          -v "$PWD/scripts/test-quartz-evaluator-runtime.py:/tests/runtime.py:ro" \
+          --entrypoint python3 "$image" /tests/runtime.py
 
   scan:
     name: Quartz Evaluator security scan

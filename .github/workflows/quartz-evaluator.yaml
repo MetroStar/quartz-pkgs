@@ -134,7 +134,7 @@ jobs:
     - name: Preserve an already published immutable source tag
       id: delivery
       run: |
-        image="${REGISTRY}/${IMAGE_NAME}/quartz-evaluator:${EVALUATOR_IMAGE_TAG}"
+        image="${REGISTRY}/${IMAGE_NAME,,}/quartz-evaluator:${EVALUATOR_IMAGE_TAG}"
         if docker buildx imagetools inspect "$image" --format '{{json .Image}}' \
             > image-configs.json 2> image-inspect-error.log; then
           jq -e --arg source "$EVALUATOR_SOURCE_SHA" '

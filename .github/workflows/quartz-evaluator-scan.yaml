@@ -20,6 +20,6 @@ jobs:
     # Workflow fix: MetroStar/epyon#187. Scanner branding is pinned separately.
     uses: MetroStar/epyon/.github/workflows/epyon-scan.yml@f677f79e0b88b34108f27da372f4045862e9a193
     with:
-      scanner_ref: 616b08c2e6800a5057f00d29eba2e1eae52195c0
+      scanner_ref: 38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb
       scan_mode: ${{ inputs.scan_mode }}
       fail_on_critical: ${{ inputs.fail_on_critical }}

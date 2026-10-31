@@ -7,8 +7,8 @@ The image build is defined in
 hardened runtime in [src/quartz-evaluator](src/quartz-evaluator).
 
 - Scanner source: `MetroStar/epyon` branch `demo/quartz-evaluator`, pinned to
-  `616b08c2e6800a5057f00d29eba2e1eae52195c0`.
-- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-616b08c2e680-r1`.
+  `38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb`.
+- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r1`.
   Increment the runtime revision for packaging changes; never overwrite a
   published source/revision tag. Publish and verify it before deploying Quartz.
 - Native AMD64 and ARM64 runtime jobs execute the published image without

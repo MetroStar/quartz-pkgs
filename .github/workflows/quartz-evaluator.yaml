@@ -24,9 +24,9 @@ name: quartz-evaluator image
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  EVALUATOR_SOURCE_SHA: 616b08c2e6800a5057f00d29eba2e1eae52195c0
+  EVALUATOR_SOURCE_SHA: 38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb
   # Bump the runtime revision for packaging changes; never republish an old tag.
-  EVALUATOR_IMAGE_TAG: source-616b08c2e680-r1
+  EVALUATOR_IMAGE_TAG: source-38e584e3fd6a-r1
 
 jobs:
   validate:

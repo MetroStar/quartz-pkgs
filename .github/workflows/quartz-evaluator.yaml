@@ -9,6 +9,7 @@ name: quartz-evaluator image
     - .github/workflows/quartz-evaluator.yaml
     - .github/workflows/quartz-evaluator-scan.yaml
     - scripts/verify-quartz-evaluator.py
+    - scripts/test-quartz-evaluator-runtime.py
     - src/quartz-evaluator/**
   push:
     branches:
@@ -17,14 +18,15 @@ name: quartz-evaluator image
     - .github/workflows/quartz-evaluator.yaml
     - .github/workflows/quartz-evaluator-scan.yaml
     - scripts/verify-quartz-evaluator.py
+    - scripts/test-quartz-evaluator-runtime.py
     - src/quartz-evaluator/**
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  EVALUATOR_SOURCE_SHA: 0da9ac4da2a38331786c1cf16396928fb099a8fb
+  EVALUATOR_SOURCE_SHA: 38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb
   # Bump the runtime revision for packaging changes; never republish an old tag.
-  EVALUATOR_IMAGE_TAG: source-0da9ac4da2a3-r3
+  EVALUATOR_IMAGE_TAG: source-38e584e3fd6a-r1
 
 jobs:
   validate:
@@ -131,7 +133,27 @@ jobs:
           org.opencontainers.image.source=https://github.com/MetroStar/epyon
           org.opencontainers.image.revision=${{ env.EVALUATOR_SOURCE_SHA }}
 
+    - name: Preserve an already published immutable source tag
+      id: delivery
+      run: |
+        image="${REGISTRY}/${IMAGE_NAME,,}/quartz-evaluator:${EVALUATOR_IMAGE_TAG}"
+        if docker buildx imagetools inspect "$image" --format '{{json .Image}}' \
+            > image-configs.json 2> image-inspect-error.log; then
+          jq -e --arg source "$EVALUATOR_SOURCE_SHA" '
+            keys == ["linux/amd64", "linux/arm64"] and
+            all(.[]; .config.Labels["org.opencontainers.image.revision"] == $source)
+          ' image-configs.json
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+          echo "Reusing the verified, published source tag without overwriting it."
+        elif grep -Fq "$image: not found" image-inspect-error.log; then
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+        else
+          cat image-inspect-error.log >&2
+          exit 1
+        fi
+
     - name: Build and push Docker image
+      if: steps.delivery.outputs.exists != 'true'
       uses: docker/build-push-action@v6
       with:
         context: src/quartz-evaluator
@@ -139,6 +161,40 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: linux/amd64,linux/arm64
+
+  runtime:
+    name: Native runtime (${{ matrix.arch }})
+    needs: build-and-push-image
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - arch: amd64
+          runner: ubuntu-latest
+        - arch: arm64
+          runner: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: read
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Test published image as an unprivileged native process
+      run: |
+        image="${REGISTRY}/${IMAGE_NAME,,}/quartz-evaluator:${EVALUATOR_IMAGE_TAG}"
+        docker run --rm --platform "linux/${{ matrix.arch }}" \
+          --user 1000:1000 --cap-drop ALL --security-opt no-new-privileges \
+          --read-only --tmpfs /tmp:rw,size=256m \
+          -e HOME=/tmp -e PYTHONDONTWRITEBYTECODE=1 \
+          -v "$PWD/scripts/test-quartz-evaluator-runtime.py:/tests/runtime.py:ro" \
+          --entrypoint python3 "$image" /tests/runtime.py
 
   scan:
     name: Quartz Evaluator security scan

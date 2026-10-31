@@ -7,10 +7,17 @@ The image build is defined in
 hardened runtime in [src/quartz-evaluator](src/quartz-evaluator).
 
 - Scanner source: `MetroStar/epyon` branch `demo/quartz-evaluator`, pinned to
-  `0da9ac4da2a38331786c1cf16396928fb099a8fb`.
-- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-0da9ac4da2a3-r3`.
+  `38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb`.
+- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r1`.
   Increment the runtime revision for packaging changes; never overwrite a
   published source/revision tag. Publish and verify it before deploying Quartz.
+- Native AMD64 and ARM64 runtime jobs execute the published image without
+  privileges or writable root filesystems and verify its toolchain, OCI source/
+  digest rejection, real Trivy OCI-layout parsing, retained policy findings
+  and structured STIG contract, persistent cache/source invalidation and
+  deterministic parallel-batch error visibility.
+  Full live application scans remain separate acceptance checks; the controlled
+  runtime fixtures are not application scan evidence.
 - CI wrapper: [quartz-evaluator-scan.yaml](.github/workflows/quartz-evaluator-scan.yaml).
   It pins the workflow fix from [MetroStar/epyon#187](https://github.com/MetroStar/epyon/pull/187)
   separately from `scanner_ref`, which selects the demo scanner source.
@@ -40,6 +47,12 @@ python3 scripts/verify-quartz-evaluator.py /path/to/epyon-source --image quartz-
 
 These smoke checks do not replace API/importer persistence tests, vulnerability
 scanning, or live SSO/SonarQube/AI acceptance.
+
+The pinned scanner supports source-bound OCI build archives for hardened Jenkins
+pods, actual Maven dependency-cache reuse, strict enabled-tool failure
+propagation, schema-constrained STIG output, and no-store HTML/logout wiring.
+Use `EPYON_REQUIRE_COMPLETE=true` and `EPYON_AI_STRUCTURED_OUTPUT=true` for
+complete-scan enforcement against Quartz's Ollama endpoint.
 
 ### Security release blockers
 

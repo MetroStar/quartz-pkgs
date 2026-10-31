@@ -143,6 +143,24 @@ class EvaluatorRuntimeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             module._validate_batch([{**valid, "confidence": 101}], [control])
 
+    def test_completed_policy_findings_are_retained(self):
+        (self.target / "README.md").write_text("# Controlled model card with missing sections\n")
+        (self.target / "Dockerfile").write_text("FROM scratch\nUSER root\n")
+        for script, tool in (
+            ("run-modelcard-check.sh", "modelcard"),
+            ("run-inference-security-scan.sh", "inference-security"),
+        ):
+            with self.subTest(tool=tool):
+                scan = self.root / tool
+                result = subprocess.run(
+                    ["bash", str(SCRIPTS / script), "--report-only"],
+                    env=dict(os.environ, TARGET_DIR=str(self.target), SCAN_DIR=str(scan), SCAN_ID="fixture"),
+                    capture_output=True, text=True, timeout=30,
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                report = json.loads((scan / tool / (tool + "-results.json")).read_text())
+                self.assertTrue(report["findings"])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

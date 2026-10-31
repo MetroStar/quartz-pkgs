@@ -7,13 +7,14 @@ The image build is defined in
 hardened runtime in [src/quartz-evaluator](src/quartz-evaluator).
 
 - Scanner source: `MetroStar/epyon` branch `demo/quartz-evaluator`, pinned to
-  `aec98b2a8d5a1302d286bb6718a589b8958a579f`.
-- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-aec98b2a8d5a-r1`.
+  `04cb85c5ffd65c9cbdc96076d7a1cfc458e1ed36`.
+- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-04cb85c5ffd6-r1`.
   Increment the runtime revision for packaging changes; never overwrite a
   published source/revision tag. Publish and verify it before deploying Quartz.
 - Native AMD64 and ARM64 runtime jobs execute the published image without
   privileges or writable root filesystems and verify its toolchain, OCI source/
-  digest rejection, real Trivy OCI-layout parsing and structured STIG contract.
+  digest rejection, real Trivy OCI-layout parsing, retained policy findings
+  and structured STIG contract.
   Full live application scans remain separate acceptance checks; the controlled
   runtime fixtures are not application scan evidence.
 - CI wrapper: [quartz-evaluator-scan.yaml](.github/workflows/quartz-evaluator-scan.yaml).

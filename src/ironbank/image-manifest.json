@@ -752,6 +752,10 @@
     "clobber": false
   },
   {
+    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-04cb85c5ffd6-r1",
+    "clobber": false
+  },
+  {
     "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-0da9ac4da2a3-r3",
     "clobber": false
   },

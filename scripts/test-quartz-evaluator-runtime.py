@@ -10,6 +10,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 SCRIPTS = Path("/app/scripts/shell")
@@ -160,6 +161,35 @@ class EvaluatorRuntimeTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 report = json.loads((scan / tool / (tool + "-results.json")).read_text())
                 self.assertTrue(report["findings"])
+
+    def test_persistent_cache_and_stig_invalidation(self):
+        spec = importlib.util.spec_from_file_location("runtime_performance", SCRIPTS / "run-stig-assessment.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        cache = module._scan_cache_module().JsonCache(self.root / "cache", ttl=60)
+        cache.put("CVE-2026-1234", {"id": "CVE-2026-1234"})
+        self.assertEqual(cache.get("CVE-2026-1234"), {"id": "CVE-2026-1234"})
+        with patch.dict(os.environ, {"EPYON_STIG_MODEL_REVISION": "a" * 64}):
+            key = module._stig_reuse_key(str(self.target), {"model": "fixture"})
+            self.assertIsNotNone(key)
+            self.assertEqual(key, module._stig_reuse_key(str(self.target), {"model": "fixture"}))
+            (self.target / "README").write_text("Changed security source\n")
+            self.assertNotEqual(key, module._stig_reuse_key(str(self.target), {"model": "fixture"}))
+
+    def test_parallel_batch_order_and_failure_visibility(self):
+        spec = importlib.util.spec_from_file_location("runtime_parallel", SCRIPTS / "run-stig-assessment.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        def result(batch):
+            if batch == 2:
+                raise ValueError("Controlled incomplete batch")
+            return batch
+
+        results = list(module._initial_batch_calls([1, 2, 3], result, workers=2))
+        self.assertEqual(results[0], 1)
+        self.assertIsInstance(results[1], ValueError)
+        self.assertEqual(results[2], 3)
 
 
 if __name__ == "__main__":

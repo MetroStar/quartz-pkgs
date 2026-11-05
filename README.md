@@ -8,7 +8,7 @@ hardened runtime in [src/quartz-evaluator](src/quartz-evaluator).
 
 - Scanner source: `MetroStar/epyon` branch `demo/quartz-evaluator`, pinned to
   `38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb`.
-- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r2`.
+- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r3`.
   Increment the runtime revision for packaging changes; never overwrite a
   published source/revision tag. Publish and verify it before deploying Quartz.
 - Native AMD64 and ARM64 runtime jobs execute the published image without
@@ -53,6 +53,13 @@ pods, actual Maven dependency-cache reuse, strict enabled-tool failure
 propagation, schema-constrained STIG output, and no-store HTML/logout wiring.
 Use `EPYON_REQUIRE_COMPLETE=true` and `EPYON_AI_STRUCTURED_OUTPUT=true` for
 complete-scan enforcement against Quartz's Ollama endpoint.
+
+Runtime revision `source-38e584e3fd6a-r3` also fixes native API discovery:
+OpenAPI titles/versions are diagnostics, not numeric return values, and absent
+frameworks yield exactly one zero count. Both architecture jobs exercise
+real OpenAPI/Python, Express, and empty Next.js fixtures and parse the resulting
+inventory JSON. API discovery stays enabled; it remains a static inventory,
+not a claim that runtime API penetration tests have run.
 
 ### EOL database provider
 

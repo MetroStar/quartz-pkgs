@@ -2,11 +2,13 @@
 """Verify build-time scanner patches and optionally a locally built runtime image."""
 
 import argparse
+import importlib.util
 from pathlib import Path
 import re
 import shutil
 import subprocess
 import tempfile
+import unittest
 
 
 def main() -> None:
@@ -35,6 +37,16 @@ def main() -> None:
         ]
         for script in patched:
             subprocess.run(["bash", "-n", str(script)], check=True)
+        runtime_tests = dockerfile.parents[2] / "scripts/test-quartz-evaluator-runtime.py"
+        spec = importlib.util.spec_from_file_location("evaluator_runtime_tests", runtime_tests)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        module.SCRIPTS = app / "scripts/shell"
+        suite = unittest.TestSuite([
+            module.EvaluatorRuntimeTests("test_native_api_discovery_preserves_numeric_counts"),
+        ])
+        if not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful():
+            raise SystemExit("Native API discovery fixture failed against patched scanner source")
     print(f"Verified {len(blocks)} patch block(s) and {len(patched)} patched shell scripts")
     if args.image:
         subprocess.run(

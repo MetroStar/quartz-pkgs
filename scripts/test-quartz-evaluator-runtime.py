@@ -93,6 +93,42 @@ class EvaluatorRuntimeTests(unittest.TestCase):
                 result = subprocess.run(command, capture_output=True, text=True, timeout=30)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_native_api_discovery_preserves_numeric_counts(self):
+        cases = {
+            "python-openapi": ({
+                "openapi.json": json.dumps({
+                    "openapi": "3.1.0", "info": {"title": "Example API", "version": "0.1.0"}, "paths": {},
+                }),
+                "app.py": 'from fastapi import FastAPI\napp = FastAPI()\n@app.get("/health")\ndef health():\n    return {"ok": True}\n',
+            }, 1, 1, 0),
+            "empty-next-pages": ({"pages/api/.keep": ""}, 0, 0, 0),
+            "express": ({"app.js": 'const app = require("express")();\napp.get("/health", (_req, res) => res.json({ok: true}));\n'}, 0, 0, 1),
+        }
+        for name, (files, specs, python_routes, node_routes) in cases.items():
+            with self.subTest(case=name):
+                target = self.root / name
+                target.mkdir()
+                for filename, body in files.items():
+                    destination = target / filename
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_text(body)
+                scan = self.root / (name + "-scan")
+                result = subprocess.run(
+                    ["bash", str(SCRIPTS / "run-api-discovery.sh"), str(target)],
+                    env=dict(os.environ, TARGET_DIR=str(target), SCAN_DIR=str(scan)),
+                    capture_output=True, text=True, timeout=60,
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertNotIn("integer expression expected", result.stderr)
+                report = json.loads((scan / "api/api-discovery.json").read_text())
+                summary = report["summary"]
+                self.assertEqual(summary["total_specs_found"], specs)
+                self.assertEqual(summary["python_routes"], python_routes)
+                self.assertEqual(summary["nodejs_routes"], node_routes)
+                self.assertEqual(summary["total_endpoints_discovered"], specs + python_routes + node_routes)
+                self.assertEqual(len(report["discovery_methods"]["code_routes"]["python"]), python_routes)
+                self.assertEqual(len(report["discovery_methods"]["code_routes"]["nodejs"]), node_routes)
+
     def test_native_xeol_uses_validated_provider_data(self):
         spec = importlib.util.spec_from_file_location("xeol_database", SCRIPTS / "prepare-xeol-db.py")
         module = importlib.util.module_from_spec(spec)

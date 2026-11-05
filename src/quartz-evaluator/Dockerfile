@@ -134,6 +134,23 @@ def regex_replace(path: str, pattern: str, replacement: str, count: int = 1) -> 
         raise SystemExit(f"expected {count} regex replacement(s), got {replaced} in {path}")
     file_path.write_text(new_text)
 
+api_discovery = "/app/scripts/shell/run-api-discovery.sh"
+for field, variable in (("Title", "api_title"), ("Version", "api_version")):
+    old = f'echo "    {field}: ${variable}"'
+    replace(api_discovery, old, old + " >&2")
+for framework in ("FastAPI", "Flask", "Django"):
+    replace(
+        api_discovery,
+        rf'''grep -c "^{framework}|" "$temp_routes" 2>/dev/null | tr -d ' \n' || echo "0"''',
+        rf'''awk -F'|' '$1 == "{framework}" {{n++}} END {{print n+0}}' "$temp_routes"''',
+    )
+for variable in ("express_matches", "fastify_matches", "koa_matches", "route_files", "pages_api_files"):
+    replace(
+        api_discovery,
+        f'''echo "${variable}" | grep -c . || echo "0"''',
+        rf"""printf '%s\n' "${variable}" | awk 'length {{n++}} END {{print n+0}}'""",
+    )
+
 replace(
     "/app/scripts/shell/run-target-security-scan.sh",
     """# Check if Docker is installed

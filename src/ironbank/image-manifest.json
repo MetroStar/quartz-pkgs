@@ -1,46 +1,14 @@
 [
   {
+    "source": "cr.agentgateway.dev/controller:v1.2.1",
+    "clobber": false
+  },
+  {
+    "source": "cr.kagent.dev/kagent-dev/kagent/app:0.9.4",
+    "clobber": false
+  },
+  {
     "source": "docker.io/bats/bats:1.13.0",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/redis/redis8-slim:8.6.2",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/kagent-dev/kagent/controller:0.9.4",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/kagent-dev/kagent/ui:0.9.4",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/grafana/mcp-grafana:0.14.0",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/library/postgres:18.3-alpine",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/library/redis:7.4.2-alpine3.21",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/controller:5.5.2",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/enforcer:5.5.2",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/manager:5.5.2",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/prometheus/jmx-exporter:1.0.1",
     "clobber": false
   },
   {
@@ -48,27 +16,7 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/istio/install-cni:1.29.2",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/istio/ztunnel:1.29.1",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/kiali/kiali-operator:v2.27.0",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/kiali/kiali:v2.27.0",
-    "clobber": false
-  },
-  {
     "source": "docker.io/dragonflyoss/client:v1.3.8",
-    "clobber": false
-  },
-  {
-    "source": "cr.agentgateway.dev/controller:v1.2.1",
     "clobber": false
   },
   {
@@ -92,6 +40,18 @@
     "clobber": false
   },
   {
+    "source": "docker.io/goharbor/harbor-db:v2.14.1",
+    "clobber": false
+  },
+  {
+    "source": "docker.io/goharbor/redis-photon:v2.14.1",
+    "clobber": false
+  },
+  {
+    "source": "docker.io/grafana/mcp-grafana:0.14.0",
+    "clobber": false
+  },
+  {
     "source": "docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-20",
     "clobber": false
   },
@@ -104,19 +64,31 @@
     "clobber": false
   },
   {
+    "source": "docker.io/library/postgres:18.3-alpine",
+    "clobber": false
+  },
+  {
+    "source": "docker.io/library/redis:7.4.2-alpine3.21",
+    "clobber": false
+  },
+  {
+    "source": "docker.io/library:18.3-alpine",
+    "clobber": false
+  },
+  {
     "source": "docker.io/ollama/ollama:0.30.6",
     "clobber": false
   },
   {
-    "source": "docker.io/ollama/ollama:0.40.12",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/strimzi/operator:1.0.0",
+    "source": "docker.io/rancher/neuvector-compliance-config:1.0.17",
     "clobber": false
   },
   {
     "source": "gcr.io/kaniko-project/executor:v1.24.0-debug",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/jetstack/cert-manager-startupapicheck:v1.20.2",
     "clobber": false
   },
   {
@@ -125,6 +97,14 @@
   },
   {
     "source": "ghcr.io/kagent-dev/doc2vec/mcp:1.1.14",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/kagent-dev/kagent/controller:0.9.4",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/kagent-dev/kagent/ui:0.9.4",
     "clobber": false
   },
   {
@@ -152,11 +132,19 @@
     "clobber": false
   },
   {
+    "source": "ghcr.io/metrostar/quartz-pkgs/jenkins-mcp:0.1.0",
+    "clobber": false
+  },
+  {
     "source": "ghcr.io/metrostar/quartz-pkgs/nodejs:20.19.6-slim-20251222-1443",
     "clobber": false
   },
   {
     "source": "ghcr.io/metrostar/quartz-pkgs/playwright:1.57.0-20251222-1450",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r1",
     "clobber": false
   },
   {
@@ -168,7 +156,15 @@
     "clobber": false
   },
   {
+    "source": "nvcr.io/nvidia/k8s-device-plugin:0.17.1",
+    "clobber": false
+  },
+  {
     "source": "nvcr.io/nvidia/k8s-device-plugin:v0.17.1",
+    "clobber": false
+  },
+  {
+    "source": "public.ecr.aws/karpenter/controller:1.12.1",
     "clobber": false
   },
   {
@@ -192,23 +188,23 @@
     "clobber": false
   },
   {
+    "source": "quay.io/oauth2-proxy/oauth2-proxy:v7.7.1",
+    "clobber": false
+  },
+  {
+    "source": "quay.io/strimzi/operator:1.0.0",
+    "clobber": false
+  },
+  {
+    "source": "registry.k8s.io/dns/k8s-dns-node-cache:1.26.7",
+    "clobber": false
+  },
+  {
+    "source": "registry.k8s.io/external-dns/external-dns:0.21.0",
+    "clobber": false
+  },
+  {
     "source": "registry.k8s.io/kubectl:v1.36.1",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/bitnami/analytics/redis-exporter:v1.83.0",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/bitnami/mysql8:8.0.36-debian-11-r1",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/goharbor/harbor-db:v2.14.1",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/goharbor/redis-photon:v2.14.1",
     "clobber": false
   },
   {
@@ -244,6 +240,18 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/bitnami/analytics/redis-exporter:v1.83.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/bitnami/analytics/redis-exporter:v1.84.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/bitnami/mysql8:8.0.36-debian-11-r1",
+    "clobber": false
+  },
+  {
     "source": "registry1.dso.mil/ironbank/bitnami/postgres:17.4.0",
     "clobber": false
   },
@@ -261,6 +269,10 @@
   },
   {
     "source": "registry1.dso.mil/ironbank/elastic/kibana/kibana:9.3.4",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/external-dns:v0.21.0-5530815",
     "clobber": false
   },
   {
@@ -364,6 +376,18 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-cainjector:v1.20.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-controller:v1.20.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-webhook:v1.20.2",
+    "clobber": false
+  },
+  {
     "source": "registry1.dso.mil/ironbank/kiwigrid/k8s-sidecar:2.5.0",
     "clobber": false
   },
@@ -377,6 +401,18 @@
   },
   {
     "source": "registry1.dso.mil/ironbank/microfocus/fortify/ssc:25.4.1.0006",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/controller:5.5.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/enforcer:5.5.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/neuvector/neuvector/manager:5.5.2",
     "clobber": false
   },
   {
@@ -500,11 +536,35 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/istio/install-cni:1.29.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/istio/pilot:1.29.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/istio/proxyv2:1.29.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/istio/ztunnel:1.29.1",
+    "clobber": false
+  },
+  {
     "source": "registry1.dso.mil/ironbank/opensource/jimmidyson/configmap-reload:v0.15.0",
     "clobber": false
   },
   {
     "source": "registry1.dso.mil/ironbank/opensource/keycloak/keycloak:26.6.2",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kiali/kiali-operator:v2.27.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/kiali/kiali:v2.27.0",
     "clobber": false
   },
   {
@@ -600,6 +660,18 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.30.6",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/pause/pause:3.10",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/postgres/postgresql:18.1",
+    "clobber": false
+  },
+  {
     "source": "registry1.dso.mil/ironbank/opensource/postgres/postgresql:18.4",
     "clobber": false
   },
@@ -624,6 +696,10 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/prometheus/jmx-exporter:1.0.1",
+    "clobber": false
+  },
+  {
     "source": "registry1.dso.mil/ironbank/opensource/prometheus/memcached-exporter:v0.15.3",
     "clobber": false
   },
@@ -641,6 +717,14 @@
   },
   {
     "source": "registry1.dso.mil/ironbank/opensource/prometheus/snmp_exporter:v0.30.1",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/redis/redis8-slim:8.4.0",
+    "clobber": false
+  },
+  {
+    "source": "registry1.dso.mil/ironbank/opensource/redis/redis8-slim:8.6.2",
     "clobber": false
   },
   {
@@ -677,142 +761,6 @@
   },
   {
     "source": "registry1.dso.mil/ironbank/twistlock/defender/defender:34.04.156",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/rancher/neuvector-compliance-config:1.0.17",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/redis/redis8-slim:8.4.0",
-    "clobber": false
-  },
-  {
-    "source": "cr.agentgateway.dev/agentgateway:v1.2.1",
-    "clobber": false
-  },
-  {
-    "source": "cr.kagent.dev/kagent-dev/kagent/app:0.9.4",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.33",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoprojlabs/argocd-image-updater:v1.2.1",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/oauth2-proxy/oauth2-proxy:v7.7.1",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/external-dns:v0.21.0-5530815",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/pause/pause:3.10",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/postgres/postgresql:18.1",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.30.6",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.40.12",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/istio/pilot:1.29.2",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/istio/proxyv2:1.29.2",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/build-tools@sha256:a38bcf9595dc06241a9a2c480b0c27eb3fb8219c923cd9160c9a22a3b0e33894",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-db6daad8c203-r1",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-fdcd80fa50d9-r1",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-aec98b2a8d5a-r1",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-04cb85c5ffd6-r1",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r1",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r2",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r3",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r4",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-0da9ac4da2a3-r3",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/jenkins-mcp:0.1.0",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/ironbank/opensource/containers/buildah:1.41.8",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/argoprojlabs/argocd-image-updater:v1.2.1",
-    "clobber": false
-  },
-  {
-    "source": "ghcr.io/metrostar/quartz-pkgs/jenkins/inbound-agent:3355.v388858a_47b_33-22-jdk21",
-    "clobber": false
-  },
-  {
-    "source": "public.ecr.aws/karpenter/controller:1.12.1",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-controller:v1.20.2",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-webhook:v1.20.2",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/jetstack/cert-manager-cainjector:v1.20.2",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/jetstack/cert-manager-startupapicheck:v1.20.2",
-    "clobber": false
-  },
-  {
-    "source": "registry.k8s.io/dns/k8s-dns-node-cache:1.26.7",
     "clobber": false
   }
 ]

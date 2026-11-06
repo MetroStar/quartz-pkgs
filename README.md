@@ -1,5 +1,32 @@
 # quartz-pkgs
 
+## Image manifest synchronization
+
+The [manifest sync workflow](.github/workflows/sync-image-manifest.yaml) pulls
+upstream `MetroStar/quartz` `main` hourly, at minute 17, and retains its manual
+trigger for immediate synchronization or an explicit Quartz ref. GitHub can
+delay scheduled runs. Synchronization runs only in `MetroStar/quartz-pkgs`,
+serializes writes to package `main`, and uses the built-in `GITHUB_TOKEN`
+for package writes and same-repository workflow dispatch.
+Private Quartz source checkout uses `QUARTZ_SOURCE_SSH_KEY`, an Actions secret
+containing the private half of a **read-only deploy key on Quartz**. The key
+grants no repository-write or dispatch access and is not persisted in the
+source checkout. No cross-repository `QUARTZ_PKGS_DISPATCH_TOKEN` is needed in
+Quartz or its derived infrastructure repositories.
+
+Changed manifests are committed to package `main`, followed by an explicit
+same-repository dispatch of the image mirror workflow. This dispatch is
+necessary because bot-token commits do not trigger push workflows.
+Extraction, push, and dispatch errors fail the run rather than being hidden.
+The existing optional Iron Bank registry credentials remain independent of
+GitHub dispatch authorization.
+
+Run the workflow contract tests with:
+
+```sh
+python3 scripts/test-manifest-sync.py
+```
+
 ## Quartz Evaluator
 
 The image build is defined in

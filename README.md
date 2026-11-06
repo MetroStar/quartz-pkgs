@@ -25,7 +25,13 @@ Run the workflow contract tests with:
 
 ```sh
 python3 scripts/test-manifest-sync.py
+python3 scripts/test-extracted-images.py
 ```
+
+The extractor preserves separate registry/repository/name components and
+the upstream charts' `v`-prefixed default image tags. Its regressions also
+ensure short added/removed-image summaries do not report a successful
+extraction as a failure.
 
 ## Quartz Evaluator
 

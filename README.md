@@ -8,7 +8,7 @@ hardened runtime in [src/quartz-evaluator](src/quartz-evaluator).
 
 - Scanner source: `MetroStar/epyon` branch `demo/quartz-evaluator`, pinned to
   `38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb`.
-- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r1`.
+- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r3`.
   Increment the runtime revision for packaging changes; never overwrite a
   published source/revision tag. Publish and verify it before deploying Quartz.
 - Native AMD64 and ARM64 runtime jobs execute the published image without
@@ -53,6 +53,59 @@ pods, actual Maven dependency-cache reuse, strict enabled-tool failure
 propagation, schema-constrained STIG output, and no-store HTML/logout wiring.
 Use `EPYON_REQUIRE_COMPLETE=true` and `EPYON_AI_STRUCTURED_OUTPUT=true` for
 complete-scan enforcement against Quartz's Ollama endpoint.
+
+Runtime revision `source-38e584e3fd6a-r3` also fixes native API discovery:
+OpenAPI titles/versions are diagnostics, not numeric return values, and absent
+frameworks yield exactly one zero count. Both architecture jobs exercise
+real OpenAPI/Python, Express, and empty Next.js fixtures and parse the resulting
+inventory JSON. API discovery stays enabled; it remains a static inventory,
+not a claim that runtime API penetration tests have run.
+
+### EOL database provider
+
+Runtime revision `source-38e584e3fd6a-r4` adds exact keyed STIG response schemas
+for reliable multi-control batches while retaining complete catalog assessment,
+strict evidence validation, and unchanged exported reports. Local requests select
+relevant manual documentation and bound output reservations per control instead
+of silently sacrificing half the context window. Native architecture tests reject
+duplicate and mismatched response keys. NVD cache and authenticated rate limits
+are unchanged; a cold unauthenticated enrichment of 106 CVEs alone exceeds ten
+minutes. This performance revision does not resolve the security release
+blockers documented below.
+
+Runtime revision `r2` explicitly selects `EPYON_XEOL_DB_SOURCE=endoflife.date`.
+Xeol's hosted database suffered an authoritative DNS outage, acknowledged by
+HeroDevs in [xeol-io/xeol#607](https://github.com/xeol-io/xeol/issues/607).
+The native Xeol binary and mandatory EOL layer remain enabled. The runtime
+downloads the complete [endoflife.date API v1 catalog](https://endoflife.date/docs/api/v1/),
+converts its published PURL/CPE identifiers and release cycles into Xeol's
+schema-1 database, and imports the result using `xeol db import`.
+
+This is a **different, explicitly identified data provider**, not a mirror of
+Xeol's proprietary aggregate. Coverage is limited to products and identifiers
+published by endoflife.date; it does not claim Xeol's additional vendor,
+registry, or vulnerability-count enrichment. Xeol's vulnerability-count field
+is not vulnerability clearance; the separate mandatory vulnerability scanners
+remain authoritative for that gate.
+
+The archive retains provider attribution, source SHA-256, source generation
+timestamp, and product/cycle/identifier counts in `provider.json`. Its age is
+the upstream generation time, never a new timestamp applied to stale data.
+Catalogs older than five days, future-dated/partial/malformed catalogs, failed
+downloads, failed imports, and invalid databases fail the EOL layer. Native
+Xeol checksum and age validation are enabled. Maintained releases with no
+announced EOL are not incorrectly treated as already EOL. Each scan uses its
+own database cache to avoid concurrent-import races.
+
+`EPYON_XEOL_DB_SOURCE=xeol` explicitly restores the original hosted provider
+and its valid-cache behavior. There is no automatic provider fallback. An
+unknown provider is an error. Both architectures test native database import,
+positive/negative EOL matching, and corrupt-database rejection without network
+access; catalog conversion regressions run with:
+
+```sh
+python3 scripts/test-xeol-db.py
+```
 
 ### Security release blockers
 

@@ -98,6 +98,12 @@ RUN npm ci --omit=dev --prefix /opt/sonar-scanner \
     && command -v sonar-scanner-npm
 
 COPY upstream/ /app/
+COPY prepare-xeol-db.py /app/scripts/shell/prepare-xeol-db.py
+COPY stig-keyed-output.patch /tmp/stig-keyed-output.patch
+RUN cd /app && git apply --check /tmp/stig-keyed-output.patch \
+    && git apply /tmp/stig-keyed-output.patch && rm /tmp/stig-keyed-output.patch
+
+ENV EPYON_XEOL_DB_SOURCE=endoflife.date
 
 # The GitHub Actions checkout used to populate src/quartz-evaluator/upstream may include a
 # CI-only HTTP extraheader in .git/config. If that metadata is copied into the
@@ -130,6 +136,23 @@ def regex_replace(path: str, pattern: str, replacement: str, count: int = 1) -> 
     if replaced != count:
         raise SystemExit(f"expected {count} regex replacement(s), got {replaced} in {path}")
     file_path.write_text(new_text)
+
+api_discovery = "/app/scripts/shell/run-api-discovery.sh"
+for field, variable in (("Title", "api_title"), ("Version", "api_version")):
+    old = f'echo "    {field}: ${variable}"'
+    replace(api_discovery, old, old + " >&2")
+for framework in ("FastAPI", "Flask", "Django"):
+    replace(
+        api_discovery,
+        rf'''grep -c "^{framework}|" "$temp_routes" 2>/dev/null | tr -d ' \n' || echo "0"''',
+        rf'''awk -F'|' '$1 == "{framework}" {{n++}} END {{print n+0}}' "$temp_routes"''',
+    )
+for variable in ("express_matches", "fastify_matches", "koa_matches", "route_files", "pages_api_files"):
+    replace(
+        api_discovery,
+        f'''echo "${variable}" | grep -c . || echo "0"''',
+        rf"""printf '%s\n' "${variable}" | awk 'length {{n++}} END {{print n+0}}'""",
+    )
 
 replace(
     "/app/scripts/shell/run-target-security-scan.sh",
@@ -300,14 +323,54 @@ fi
 echo -e "${CYAN}📥 Updating Xeol end-of-life database...${NC}"
 echo "This ensures we have the latest EOL data..."
 
-if [ -n "$LOCAL_XEOL" ]; then
-    "$LOCAL_XEOL" db update 2>&1 | tee -a "$SCAN_LOG" || true
+case "${EPYON_XEOL_DB_SOURCE:-xeol}" in
+    endoflife.date)
+        if [ -z "$LOCAL_XEOL" ]; then
+            echo "ERROR: endoflife.date database preparation requires native Xeol" >&2
+            exit 1
+        fi
+        export XEOL_DB_CACHE_DIR="$OUTPUT_DIR/xeol-db"
+        export XEOL_DB_AUTO_UPDATE=false
+        export XEOL_DB_VALIDATE_BY_HASH_ON_START=true
+        export XEOL_DB_VALIDATE_AGE=true
+        export XEOL_DB_MAX_ALLOWED_BUILT_AGE=120h
+        (set -o pipefail; python3 "$SCRIPT_DIR/prepare-xeol-db.py" \\
+            "$OUTPUT_DIR/xeol-database.tar.gz" 2>&1 | tee -a "$SCAN_LOG") || exit 1
+        (set -o pipefail; "$LOCAL_XEOL" db import \\
+            "$OUTPUT_DIR/xeol-database.tar.gz" 2>&1 | tee -a "$SCAN_LOG") || exit 1
+        ;;
+    xeol)
+        if [ -n "$LOCAL_XEOL" ]; then
+            if ! (set -o pipefail; "$LOCAL_XEOL" db update 2>&1 | tee -a "$SCAN_LOG"); then
+                echo "WARNING: Xeol update failed; a valid cached database is required" >&2
+            fi
+        else
+            if ! (set -o pipefail; ${CONTAINER_CLI} run --rm \\
+                -v "$XEOL_CACHE_VOL:/root/.cache" \\
+                noqcks/xeol:latest db update 2>&1 | tee -a "$SCAN_LOG"); then
+                echo "WARNING: Xeol update failed; a valid cached database is required" >&2
+            fi
+        fi
+        ;;
+    *)
+        echo "ERROR: unsupported EPYON_XEOL_DB_SOURCE: $EPYON_XEOL_DB_SOURCE" >&2
+        exit 1
+        ;;
+esac
+""",
+)
+
+replace(
+    "/app/scripts/shell/run-xeol-scan.sh",
+    """DB_UPDATE_RESULT="${PIPESTATUS[0]}"
+if [ "$DB_UPDATE_RESULT" -eq 0 ]; then
+    echo -e "${GREEN}✅ Xeol EOL database updated successfully${NC}"
 else
-    ${CONTAINER_CLI} run --rm \\
-        -v "$XEOL_CACHE_VOL:/root/.cache" \\
-        noqcks/xeol:latest \\
-        db update 2>&1 | tee -a "$SCAN_LOG"
+    echo -e "${YELLOW}⚠️  Database update had issues (exit code: $DB_UPDATE_RESULT)${NC}"
+    echo "   Proceeding with cached database..."
 fi
+""",
+    """echo "Database preparation complete; validating before scanning."
 """,
 )
 
@@ -324,12 +387,12 @@ echo
     """# Show database info
 echo -e "${CYAN}📋 Checking Xeol database status...${NC}"
 if [ -n "$LOCAL_XEOL" ]; then
-    "$LOCAL_XEOL" db status 2>&1 | tee -a "$SCAN_LOG" || true
+    (set -o pipefail; "$LOCAL_XEOL" db status 2>&1 | tee -a "$SCAN_LOG") || exit 1
 else
-    ${CONTAINER_CLI} run --rm \\
+    (set -o pipefail; ${CONTAINER_CLI} run --rm \\
         -v "$XEOL_CACHE_VOL:/root/.cache" \\
         noqcks/xeol:latest \\
-        db status 2>&1 | tee -a "$SCAN_LOG"
+        db status 2>&1 | tee -a "$SCAN_LOG") || exit 1
 fi
 echo
 """,

@@ -1,4 +1,5 @@
 import hashlib
+from datetime import datetime, timezone
 import importlib.util
 import io
 import json
@@ -92,6 +93,99 @@ class EvaluatorRuntimeTests(unittest.TestCase):
                 result = subprocess.run(command, capture_output=True, text=True, timeout=30)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_native_api_discovery_preserves_numeric_counts(self):
+        cases = {
+            "python-openapi": ({
+                "openapi.json": json.dumps({
+                    "openapi": "3.1.0", "info": {"title": "Example API", "version": "0.1.0"}, "paths": {},
+                }),
+                "app.py": 'from fastapi import FastAPI\napp = FastAPI()\n@app.get("/health")\ndef health():\n    return {"ok": True}\n',
+            }, 1, 1, 0),
+            "empty-next-pages": ({"pages/api/.keep": ""}, 0, 0, 0),
+            "express": ({"app.js": 'const app = require("express")();\napp.get("/health", (_req, res) => res.json({ok: true}));\n'}, 0, 0, 1),
+        }
+        for name, (files, specs, python_routes, node_routes) in cases.items():
+            with self.subTest(case=name):
+                target = self.root / name
+                target.mkdir()
+                for filename, body in files.items():
+                    destination = target / filename
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_text(body)
+                scan = self.root / (name + "-scan")
+                result = subprocess.run(
+                    ["bash", str(SCRIPTS / "run-api-discovery.sh"), str(target)],
+                    env=dict(os.environ, TARGET_DIR=str(target), SCAN_DIR=str(scan)),
+                    capture_output=True, text=True, timeout=60,
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertNotIn("integer expression expected", result.stderr)
+                report = json.loads((scan / "api/api-discovery.json").read_text())
+                summary = report["summary"]
+                self.assertEqual(summary["total_specs_found"], specs)
+                self.assertEqual(summary["python_routes"], python_routes)
+                self.assertEqual(summary["nodejs_routes"], node_routes)
+                self.assertEqual(summary["total_endpoints_discovered"], specs + python_routes + node_routes)
+                self.assertEqual(len(report["discovery_methods"]["code_routes"]["python"]), python_routes)
+                self.assertEqual(len(report["discovery_methods"]["code_routes"]["nodejs"]), node_routes)
+
+    def test_native_xeol_uses_validated_provider_data(self):
+        spec = importlib.util.spec_from_file_location("xeol_database", SCRIPTS / "prepare-xeol-db.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        catalog = {
+            "schema_version": "1.2.1",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "total": 1,
+            "result": [{
+                "name": "python", "label": "Python",
+                "links": {"html": "https://endoflife.date/python"},
+                "identifiers": [
+                    {"type": "purl", "id": "pkg:generic/python"},
+                    {"type": "cpe", "id": "cpe:2.3:a:python:python"},
+                ],
+                "releases": [
+                    {"name": "3.14", "isEol": False, "eolFrom": None,
+                     "isLts": False, "latest": None, "releaseDate": "2025-10-07"},
+                    {"name": "3.7", "isEol": True, "eolFrom": "2023-06-27",
+                     "isLts": False, "latest": None, "releaseDate": "2018-06-27"},
+                ],
+            }],
+        }
+        archive = self.root / "xeol-db.tar.gz"
+        module.build_archive(json.dumps(catalog).encode(), archive)
+        environment = dict(
+            os.environ, XEOL_DB_CACHE_DIR=str(self.root / "xeol-cache"),
+            XEOL_DB_AUTO_UPDATE="false", XEOL_CHECK_FOR_APP_UPDATE="false",
+            XEOL_DB_VALIDATE_BY_HASH_ON_START="true", XEOL_DB_VALIDATE_AGE="true",
+            XEOL_DB_MAX_ALLOWED_BUILT_AGE="120h",
+        )
+        for command in (["xeol", "db", "import", str(archive)], ["xeol", "db", "status"]):
+            result = subprocess.run(command, env=environment, capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for version, count in (("3.7.17", 1), ("3.14.0", 0)):
+            with self.subTest(version=version):
+                bom = self.root / "fixture.cdx.json"
+                bom.write_text(json.dumps({
+                    "bomFormat": "CycloneDX", "specVersion": "1.4", "version": 1,
+                    "components": [{"type": "library", "name": "python", "version": version,
+                                    "purl": f"pkg:generic/python@{version}"}],
+                }))
+                result = subprocess.run(
+                    ["xeol", "sbom:" + str(bom), "-o", "json"], env=environment,
+                    capture_output=True, text=True, timeout=60,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(len(json.loads(result.stdout)["matches"]), count)
+        database = self.root / "xeol-cache/1/xeol.db"
+        with database.open("ab") as output:
+            output.write(b"controlled corruption")
+        result = subprocess.run(
+            ["xeol", "db", "status"], env=environment, capture_output=True, text=True, timeout=30,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("checksum", (result.stdout + result.stderr).lower())
+
     def test_actual_image_imports_source_bound_oci(self):
         result = self.run_import(self.archive(self.revision))
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -139,6 +233,12 @@ class EvaluatorRuntimeTests(unittest.TestCase):
         self.assertEqual(options["response_format"]["type"], "json_schema")
         valid = {"vuln_id": "V-1", "status": "Open", "evidence": "Controlled fixture evidence", "confidence": 90}
         self.assertEqual(module._validate_batch([valid], [control]), [valid])
+        self.assertEqual(module._assessment_schema([control])["required"], ["V-1"])
+        self.assertEqual(module._decode_assessments(json.dumps({"V-1": valid}), [control]), [valid])
+        with self.assertRaises(ValueError):
+            module._decode_assessments('{"V-1":' + json.dumps(valid) + ',"V-1":' + json.dumps(valid) + '}', [control])
+        with self.assertRaises(ValueError):
+            module._decode_assessments(json.dumps({"V-1": {**valid, "vuln_id": "V-2"}}), [control])
         with self.assertRaises(ValueError):
             module._validate_batch([valid, valid], [control])
         with self.assertRaises(ValueError):

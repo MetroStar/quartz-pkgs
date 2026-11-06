@@ -265,16 +265,27 @@ for entry in "${HELM_CHARTS[@]}"; do
   echo "$CHART_VALUES" | awk -v appver="$APP_VERSION" '
     /^\s*registry:/ {
       registry = $2; gsub(/["'"'"']/, "", registry)
+      name = ""
     }
     /^\s*repository:/ {
       repo = $2; gsub(/["'"'"']/, "", repo)
+      name = ""
       if (repo == "" || repo ~ /^#/) { repo = ""; next }
+    }
+    /^\s*name:/ && repo != "" {
+      name = $2; gsub(/["'"'"']/, "", name)
     }
     /^\s*tag:/ {
       tag = $2; gsub(/["'"'"']/, "", tag)
-      if (tag == "" || tag == "null" || tag == "~" || tag ~ /^#/) tag = appver
+      if (tag == "" || tag == "null" || tag == "~" || tag ~ /^#/) {
+        tag = appver
+        # These charts add v to appVersion in their image helper.
+        if (tag != "" && (repo == "registry.k8s.io/external-dns/external-dns" ||
+             repo == "nvcr.io/nvidia/k8s-device-plugin") && tag !~ /^v/) tag = "v" tag
+      }
       if (tag == "" || tag ~ /^#/) next
       if (repo == "") next
+      if (name != "" && name != "null" && name != "~") repo = repo "/" name
       # Build full image reference
       if (repo ~ /^[a-z]+\.(io|com|aws|dev|k8s\.io)\//) {
         # repo already has full registry prefix (e.g. registry.k8s.io/foo)
@@ -285,7 +296,7 @@ for entry in "${HELM_CHARTS[@]}"; do
         # Docker Hub short name (org/image) - prefix with docker.io
         print "docker.io/" repo ":" tag
       }
-      registry = ""; repo = ""
+      registry = ""; repo = ""; name = ""
     }
     /^\s*image:/ {
       img = $2; gsub(/["'"'"']/, "", img)
@@ -460,12 +471,16 @@ if [[ "$EXISTING_MANIFEST" != "[]" ]]; then
     if [[ $ADDED -gt 0 ]]; then
       echo "  Added:" >&2
       comm -13 <(echo "$EXISTING_SOURCES") <(echo "$NEW_SOURCES") | head -10 | sed 's/^/    /' >&2
-      [[ $ADDED -gt 10 ]] && echo "    ... and $((ADDED - 10)) more" >&2
+      if [[ $ADDED -gt 10 ]]; then
+        echo "    ... and $((ADDED - 10)) more" >&2
+      fi
     fi
     if [[ $REMOVED -gt 0 ]]; then
       echo "  Removed:" >&2
       comm -23 <(echo "$EXISTING_SOURCES") <(echo "$NEW_SOURCES") | head -10 | sed 's/^/    /' >&2
-      [[ $REMOVED -gt 10 ]] && echo "    ... and $((REMOVED - 10)) more" >&2
+      if [[ $REMOVED -gt 10 ]]; then
+        echo "    ... and $((REMOVED - 10)) more" >&2
+      fi
     fi
   else
     echo "No changes detected." >&2

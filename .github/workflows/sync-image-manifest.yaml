@@ -7,6 +7,8 @@ name: Sync image manifest
     paths:
       - .github/workflows/sync-image-manifest.yaml
       - scripts/test-manifest-sync.py
+      - scripts/extract-images.sh
+      - scripts/test-extracted-images.py
   workflow_dispatch:
     inputs:
       bigbang_version:
@@ -41,6 +43,7 @@ jobs:
         run: |
           python3 -m pip install 'PyYAML>=6,<7'
           python3 scripts/test-manifest-sync.py
+          python3 scripts/test-extracted-images.py
 
   extract-and-update:
     name: Extract images and update manifest

@@ -63,6 +63,16 @@ not a claim that runtime API penetration tests have run.
 
 ### EOL database provider
 
+Runtime revision `source-38e584e3fd6a-r4` adds exact keyed STIG response schemas
+for reliable multi-control batches while retaining complete catalog assessment,
+strict evidence validation, and unchanged exported reports. Local requests select
+relevant manual documentation and bound output reservations per control instead
+of silently sacrificing half the context window. Native architecture tests reject
+duplicate and mismatched response keys. NVD cache and authenticated rate limits
+are unchanged; a cold unauthenticated enrichment of 106 CVEs alone exceeds ten
+minutes. This performance revision does not resolve the security release
+blockers documented below.
+
 Runtime revision `r2` explicitly selects `EPYON_XEOL_DB_SOURCE=endoflife.date`.
 Xeol's hosted database suffered an authoritative DNS outage, acknowledged by
 HeroDevs in [xeol-io/xeol#607](https://github.com/xeol-io/xeol/issues/607).

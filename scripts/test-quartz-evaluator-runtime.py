@@ -233,6 +233,12 @@ class EvaluatorRuntimeTests(unittest.TestCase):
         self.assertEqual(options["response_format"]["type"], "json_schema")
         valid = {"vuln_id": "V-1", "status": "Open", "evidence": "Controlled fixture evidence", "confidence": 90}
         self.assertEqual(module._validate_batch([valid], [control]), [valid])
+        self.assertEqual(module._assessment_schema([control])["required"], ["V-1"])
+        self.assertEqual(module._decode_assessments(json.dumps({"V-1": valid}), [control]), [valid])
+        with self.assertRaises(ValueError):
+            module._decode_assessments('{"V-1":' + json.dumps(valid) + ',"V-1":' + json.dumps(valid) + '}', [control])
+        with self.assertRaises(ValueError):
+            module._decode_assessments(json.dumps({"V-1": {**valid, "vuln_id": "V-2"}}), [control])
         with self.assertRaises(ValueError):
             module._validate_batch([valid, valid], [control])
         with self.assertRaises(ValueError):

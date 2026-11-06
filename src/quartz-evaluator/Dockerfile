@@ -99,6 +99,9 @@ RUN npm ci --omit=dev --prefix /opt/sonar-scanner \
 
 COPY upstream/ /app/
 COPY prepare-xeol-db.py /app/scripts/shell/prepare-xeol-db.py
+COPY stig-keyed-output.patch /tmp/stig-keyed-output.patch
+RUN cd /app && git apply --check /tmp/stig-keyed-output.patch \
+    && git apply /tmp/stig-keyed-output.patch && rm /tmp/stig-keyed-output.patch
 
 ENV EPYON_XEOL_DB_SOURCE=endoflife.date
 

@@ -28,7 +28,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   EVALUATOR_SOURCE_SHA: 38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb
   # Bump the runtime revision for packaging changes; never republish an old tag.
-  EVALUATOR_IMAGE_TAG: source-38e584e3fd6a-r3
+  EVALUATOR_IMAGE_TAG: source-38e584e3fd6a-r4
 
 jobs:
   validate:

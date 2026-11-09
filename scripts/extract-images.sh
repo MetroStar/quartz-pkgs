@@ -360,7 +360,11 @@ KNOWN_OPERATOR_IMAGES=(
   "gcr.io/kaniko-project/executor:v1.24.0-debug"
   # Quartz Terraform-managed runtime images whose repositories are selected
   # outside Helm chart values.
-  "public.ecr.aws/karpenter/controller:1.12.1"
+  "public.ecr.aws/karpenter/controller:1.15.1"
+  # Baseline repositories can advance these pins before framework main merges.
+  "ghcr.io/kedacore/keda-admission-webhooks:2.21.0"
+  "ghcr.io/kedacore/keda-metrics-apiserver:2.21.0"
+  "ghcr.io/kedacore/keda:2.21.0"
   "registry1.dso.mil/ironbank/jetstack/cert-manager-controller:v1.20.2"
   "registry1.dso.mil/ironbank/jetstack/cert-manager-webhook:v1.20.2"
   "registry1.dso.mil/ironbank/jetstack/cert-manager-cainjector:v1.20.2"

@@ -33,6 +33,14 @@ the upstream charts' `v`-prefixed default image tags. Its regressions also
 ensure short added/removed-image summaries do not report a successful
 extraction as a failure.
 
+The auxiliary image set includes Karpenter controller 1.15.1 and KEDA 2.21.0
+for compatible baseline upgrades ahead of framework-main merges. Existing
+published tags are retained in the registry; manifest synchronization is not
+a registry-deletion operation. Mirror both Karpenter charts with the
+[chart mirror workflow](.github/workflows/karpenter-chart-mirror.yaml), setting
+`karpenter_version=1.15.1`, before updating consumers. Chart and controller
+versions must match.
+
 ## Quartz Evaluator
 
 The image build is defined in

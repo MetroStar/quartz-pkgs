@@ -108,11 +108,23 @@
     "clobber": false
   },
   {
+    "source": "ghcr.io/kedacore/keda-admission-webhooks:2.21.0",
+    "clobber": false
+  },
+  {
     "source": "ghcr.io/kedacore/keda-metrics-apiserver:2.19.0",
     "clobber": false
   },
   {
+    "source": "ghcr.io/kedacore/keda-metrics-apiserver:2.21.0",
+    "clobber": false
+  },
+  {
     "source": "ghcr.io/kedacore/keda:2.19.0",
+    "clobber": false
+  },
+  {
+    "source": "ghcr.io/kedacore/keda:2.21.0",
     "clobber": false
   },
   {
@@ -157,6 +169,10 @@
   },
   {
     "source": "public.ecr.aws/karpenter/controller:1.12.1",
+    "clobber": false
+  },
+  {
+    "source": "public.ecr.aws/karpenter/controller:1.15.1",
     "clobber": false
   },
   {

@@ -12,30 +12,6 @@
     "clobber": false
   },
   {
-    "source": "docker.io/busybox:latest",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/dragonflyoss/client:v1.3.8",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/dragonflyoss/dfinit:v1.3.8",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/dragonflyoss/injector:v0.1.0",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/dragonflyoss/manager:v2.4.4-rc.1",
-    "clobber": false
-  },
-  {
-    "source": "docker.io/dragonflyoss/scheduler:v2.4.4-rc.1",
-    "clobber": false
-  },
-  {
     "source": "docker.io/emberstack/kubernetes-reflector:10.0.42",
     "clobber": false
   },
@@ -164,18 +140,6 @@
     "clobber": false
   },
   {
-    "source": "quay.io/argoproj/argocli:v4.0.5",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoproj/argoexec:v4.0.5",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoproj/workflow-controller:v4.0.5",
-    "clobber": false
-  },
-  {
     "source": "quay.io/brancz/kube-rbac-proxy:v0.19.1",
     "clobber": false
   },
@@ -189,14 +153,6 @@
   },
   {
     "source": "registry.k8s.io/dns/k8s-dns-node-cache:1.26.7",
-    "clobber": false
-  },
-  {
-    "source": "registry.k8s.io/external-dns/external-dns:v0.21.0",
-    "clobber": false
-  },
-  {
-    "source": "registry.k8s.io/kubectl:v1.36.1",
     "clobber": false
   },
   {

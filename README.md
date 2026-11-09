@@ -43,6 +43,9 @@ versions must match.
 The inventory also retains the baseline's digest-pinned build-tools image even
 when framework main still references its older tag. Already-owned package
 images are inventoried but skipped by the mirror job rather than self-copied.
+Auxiliary pins also cover the pending framework's Ollama 0.40.12 and JDK21
+inbound agent, alongside the baseline's older versions. The portability check
+must pass against both consumers before removing a retained version.
 
 ## Quartz Evaluator
 

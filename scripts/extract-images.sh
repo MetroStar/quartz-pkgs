@@ -363,6 +363,8 @@ KNOWN_OPERATOR_IMAGES=(
   "public.ecr.aws/karpenter/controller:1.15.1"
   # Baseline repositories can advance these pins before framework main merges.
   "ghcr.io/metrostar/quartz-pkgs/build-tools@sha256:a38bcf9595dc06241a9a2c480b0c27eb3fb8219c923cd9160c9a22a3b0e33894"
+  "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.40.12"
+  "docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-22-jdk21"
   "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.33"
   "quay.io/argoprojlabs/argocd-image-updater:v1.2.1"
   "ghcr.io/kedacore/keda-admission-webhooks:2.21.0"

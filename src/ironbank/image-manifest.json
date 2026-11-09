@@ -92,10 +92,6 @@
     "clobber": false
   },
   {
-    "source": "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.33",
-    "clobber": false
-  },
-  {
     "source": "ghcr.io/kagent-dev/doc2vec/mcp:1.1.14",
     "clobber": false
   },
@@ -177,10 +173,6 @@
   },
   {
     "source": "quay.io/argoproj/workflow-controller:v4.0.5",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoprojlabs/argocd-image-updater:v1.2.1",
     "clobber": false
   },
   {

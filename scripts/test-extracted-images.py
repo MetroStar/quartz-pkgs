@@ -27,6 +27,7 @@ class ExtractedImageTests(unittest.TestCase):
         )
         required = {
             "ghcr.io/metrostar/quartz-pkgs/build-tools@sha256:a38bcf9595dc06241a9a2c480b0c27eb3fb8219c923cd9160c9a22a3b0e33894",
+            "ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r4",
             "registry1.dso.mil/ironbank/opensource/ollama/ollama:0.40.12",
             "docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-22-jdk21",
             "public.ecr.aws/karpenter/controller:1.15.1",

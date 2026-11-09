@@ -46,6 +46,8 @@ images are inventoried but skipped by the mirror job rather than self-copied.
 Auxiliary pins also cover the pending framework's Ollama 0.40.12 and JDK21
 inbound agent, alongside the baseline's older versions. The portability check
 must pass against both consumers before removing a retained version.
+The baseline evaluator `source-38e584e3fd6a-r4` is retained as an owned package
+reference too; inventory coverage does not waive its security release blockers.
 
 ## Quartz Evaluator
 

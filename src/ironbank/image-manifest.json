@@ -164,18 +164,6 @@
     "clobber": false
   },
   {
-    "source": "quay.io/argoproj/argocli:v4.0.5",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoproj/argoexec:v4.0.5",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoproj/workflow-controller:v4.0.5",
-    "clobber": false
-  },
-  {
     "source": "quay.io/brancz/kube-rbac-proxy:v0.19.1",
     "clobber": false
   },
@@ -189,14 +177,6 @@
   },
   {
     "source": "registry.k8s.io/dns/k8s-dns-node-cache:1.26.7",
-    "clobber": false
-  },
-  {
-    "source": "registry.k8s.io/external-dns/external-dns:v0.21.0",
-    "clobber": false
-  },
-  {
-    "source": "registry.k8s.io/kubectl:v1.36.1",
     "clobber": false
   },
   {

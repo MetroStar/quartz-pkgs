@@ -362,6 +362,8 @@ KNOWN_OPERATOR_IMAGES=(
   # outside Helm chart values.
   "public.ecr.aws/karpenter/controller:1.15.1"
   # Baseline repositories can advance these pins before framework main merges.
+  "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.33"
+  "quay.io/argoprojlabs/argocd-image-updater:v1.2.1"
   "ghcr.io/kedacore/keda-admission-webhooks:2.21.0"
   "ghcr.io/kedacore/keda-metrics-apiserver:2.21.0"
   "ghcr.io/kedacore/keda:2.21.0"

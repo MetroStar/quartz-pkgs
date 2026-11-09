@@ -15,6 +15,28 @@ COMMAND = 'echo "$CHART_VALUES" | awk -v appver="$APP_VERSION" ' + EXTRACTION
 
 
 class ExtractedImageTests(unittest.TestCase):
+    def test_baseline_upgrade_images_survive_framework_main_extraction(self):
+        auxiliary = "KNOWN_OPERATOR_IMAGES=(" + SOURCE.split(
+            "KNOWN_OPERATOR_IMAGES=(", 1
+        )[1].split("\n)", 1)[0] + "\n)"
+        result = subprocess.run(
+            ["bash", "-euc", auxiliary + '\nprintf "%s\\n" "${KNOWN_OPERATOR_IMAGES[@]}"'],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        required = {
+            "public.ecr.aws/karpenter/controller:1.15.1",
+            "ghcr.io/kedacore/keda-admission-webhooks:2.21.0",
+            "ghcr.io/kedacore/keda-metrics-apiserver:2.21.0",
+            "ghcr.io/kedacore/keda:2.21.0",
+            "ghcr.io/k8sgpt-ai/k8sgpt:v0.4.33",
+            "quay.io/argoprojlabs/argocd-image-updater:v1.2.1",
+        }
+        self.assertTrue(required.issubset(result.stdout.splitlines()))
+        manifest = json.loads((ROOT / "src/ironbank/image-manifest.json").read_text())
+        self.assertTrue(required.issubset({image["source"] for image in manifest}))
+
     def extract(self, values, version):
         result = subprocess.run(
             ["bash", "-euc", COMMAND],

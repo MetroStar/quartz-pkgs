@@ -26,6 +26,7 @@ class ExtractedImageTests(unittest.TestCase):
             check=True,
         )
         required = {
+            "ghcr.io/metrostar/quartz-pkgs/build-tools@sha256:a38bcf9595dc06241a9a2c480b0c27eb3fb8219c923cd9160c9a22a3b0e33894",
             "public.ecr.aws/karpenter/controller:1.15.1",
             "ghcr.io/kedacore/keda-admission-webhooks:2.21.0",
             "ghcr.io/kedacore/keda-metrics-apiserver:2.21.0",

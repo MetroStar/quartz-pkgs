@@ -40,6 +40,9 @@ a registry-deletion operation. Mirror both Karpenter charts with the
 [chart mirror workflow](.github/workflows/karpenter-chart-mirror.yaml), setting
 `karpenter_version=1.15.1`, before updating consumers. Chart and controller
 versions must match.
+The inventory also retains the baseline's digest-pinned build-tools image even
+when framework main still references its older tag. Already-owned package
+images are inventoried but skipped by the mirror job rather than self-copied.
 
 ## Quartz Evaluator
 

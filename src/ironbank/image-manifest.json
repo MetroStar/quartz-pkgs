@@ -172,15 +172,7 @@
     "clobber": false
   },
   {
-    "source": "public.ecr.aws/karpenter/controller:1.12.1",
-    "clobber": false
-  },
-  {
     "source": "public.ecr.aws/karpenter/controller:1.15.1",
-    "clobber": false
-  },
-  {
-    "source": "quay.io/argoprojlabs/argocd-image-updater:v1.2.1",
     "clobber": false
   },
   {
@@ -197,6 +189,10 @@
   },
   {
     "source": "quay.io/argoproj/workflow-controller:v4.0.5",
+    "clobber": false
+  },
+  {
+    "source": "quay.io/argoprojlabs/argocd-image-updater:v1.2.1",
     "clobber": false
   },
   {

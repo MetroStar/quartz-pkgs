@@ -744,6 +744,10 @@
     "clobber": false
   },
   {
+    "source": "registry1.dso.mil/ironbank/opensource/velero/velero:v1.18.0",
+    "clobber": false
+  },
+  {
     "source": "registry1.dso.mil/ironbank/opensource/yq/yq:4.50.1",
     "clobber": false
   },

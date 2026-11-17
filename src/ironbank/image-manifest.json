@@ -436,10 +436,6 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/apache/kafka-native:4.2.0",
-    "clobber": false
-  },
-  {
     "source": "registry1.dso.mil/ironbank/opensource/bats/bats:1.13.0",
     "clobber": false
   },
@@ -504,10 +500,6 @@
     "clobber": false
   },
   {
-    "source": "registry1.dso.mil/ironbank/opensource/grafana/enterprise-metrics:v2.17.12",
-    "clobber": false
-  },
-  {
     "source": "registry1.dso.mil/ironbank/opensource/grafana/grafana-image-renderer:v5.7.3",
     "clobber": false
   },
@@ -517,14 +509,6 @@
   },
   {
     "source": "registry1.dso.mil/ironbank/opensource/grafana/loki:3.7.1",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/grafana/mimir:3.0.6",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/grafana/rollout-operator:v0.36.1",
     "clobber": false
   },
   {
@@ -713,10 +697,6 @@
   },
   {
     "source": "registry1.dso.mil/ironbank/opensource/prometheus/memcached-exporter:v0.15.3",
-    "clobber": false
-  },
-  {
-    "source": "registry1.dso.mil/ironbank/opensource/prometheus/memcached-exporter:v0.16.0",
     "clobber": false
   },
   {

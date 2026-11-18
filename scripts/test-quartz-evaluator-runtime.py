@@ -105,6 +105,10 @@ class EvaluatorRuntimeTests(unittest.TestCase):
             path = tools / script
             path.write_text('#!/bin/sh\nprintf "%s\\n" "$0" >> "$SCAN_DIR/calls"\n')
             path.chmod(0o755)
+            # The hardened runtime mounts /tmp noexec, so run stubs through sh.
+            invocation = f'"$SCRIPT_DIR/{script}" --scan-dir'
+            self.assertEqual(harness.count(invocation), 1)
+            harness = harness.replace(invocation, "sh " + invocation)
         for setting in (None, "false", "true"):
             scan = self.root / f"enrichment-{setting}"
             scan.mkdir()

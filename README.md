@@ -77,7 +77,7 @@ hardened runtime in [src/quartz-evaluator](src/quartz-evaluator).
 - The runtime clears the base image's interactive Python entrypoint so the API
   and Jenkins commands run as UID 1000. SonarQube Scanner for NPM is pinned to
   5.0.2 and invoked through its `sonar-scanner-npm` executable. Its locked npm
-  dependency tree overrides `node-forge` to upstream release 1.4.2, outside
+  dependency tree overrides `node-forge` to upstream release 1.4.3, outside
   the affected range of CVE-2026-85393.
 
 Verify every native-toolchain patch against a checkout of the pinned source:
@@ -121,6 +121,8 @@ by default. Consumers requiring this capability can check
 `EPYON_ENRICHMENT_POLICY_VERSION=1` rather than silently relying on an older image.
 Disabled enrichment means supplemental CVSS/KEV/feed metadata is unavailable;
 do not report it as passing or a full-coverage scan.
+This revision also updates the locked `node-forge` override to 1.4.3 after the
+publication check identified new advisories affecting 1.4.2.
 
 Runtime revision `source-38e584e3fd6a-r4` adds exact keyed STIG response schemas
 for reliable multi-control batches while retaining complete catalog assessment,

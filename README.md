@@ -57,7 +57,7 @@ hardened runtime in [src/quartz-evaluator](src/quartz-evaluator).
 
 - Scanner source: `MetroStar/epyon` branch `demo/quartz-evaluator`, pinned to
   `38e584e3fd6a89ab0ad9e4106ff6cc22a7bbb1fb`.
-- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r3`.
+- Image: `ghcr.io/metrostar/quartz-pkgs/quartz-evaluator:source-38e584e3fd6a-r5`.
   Increment the runtime revision for packaging changes; never overwrite a
   published source/revision tag. Publish and verify it before deploying Quartz.
 - Native AMD64 and ARM64 runtime jobs execute the published image without
@@ -77,7 +77,7 @@ hardened runtime in [src/quartz-evaluator](src/quartz-evaluator).
 - The runtime clears the base image's interactive Python entrypoint so the API
   and Jenkins commands run as UID 1000. SonarQube Scanner for NPM is pinned to
   5.0.2 and invoked through its `sonar-scanner-npm` executable. Its locked npm
-  dependency tree overrides `node-forge` to upstream release 1.4.2, outside
+  dependency tree overrides `node-forge` to upstream release 1.4.3, outside
   the affected range of CVE-2026-85393.
 
 Verify every native-toolchain patch against a checkout of the pinned source:
@@ -111,6 +111,18 @@ inventory JSON. API discovery stays enabled; it remains a static inventory,
 not a claim that runtime API penetration tests have run.
 
 ### EOL database provider
+
+Runtime revision `source-38e584e3fd6a-r5` adds `EPYON_SKIP_ENRICHMENT=true`
+for bounded CI profiles. It skips only the optional post-scan NVD/CISA KEV
+and international-feed enrichment calls, not scanner execution, original
+findings or mandatory scan evidence. Each skipped enrichment writes a separate
+`*-enrichment-status.json` with an explicit reason. Enrichment remains enabled
+by default. Consumers requiring this capability can check
+`EPYON_ENRICHMENT_POLICY_VERSION=1` rather than silently relying on an older image.
+Disabled enrichment means supplemental CVSS/KEV/feed metadata is unavailable;
+do not report it as passing or a full-coverage scan.
+This revision also updates the locked `node-forge` override to 1.4.3 after the
+publication check identified new advisories affecting 1.4.2.
 
 Runtime revision `source-38e584e3fd6a-r4` adds exact keyed STIG response schemas
 for reliable multi-control batches while retaining complete catalog assessment,

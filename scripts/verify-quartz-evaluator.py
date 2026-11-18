@@ -48,6 +48,7 @@ def main() -> None:
         suite = unittest.TestSuite([
             module.EvaluatorRuntimeTests("test_native_api_discovery_preserves_numeric_counts"),
             module.EvaluatorRuntimeTests("test_actual_image_structured_stig_contract"),
+            module.EvaluatorRuntimeTests("test_optional_enrichment_skip_is_explicit_and_preserves_findings"),
         ])
         if not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful():
             raise SystemExit("Native API discovery fixture failed against patched scanner source")
@@ -68,7 +69,7 @@ for tool in git jq nmap node npm java sonar-scanner-npm syft grype trivy truffle
 done
 sonar-scanner-npm --version
 npm ls --omit=dev --prefix /opt/sonar-scanner
-node -e 'if (require("/opt/sonar-scanner/node_modules/node-forge/package.json").version !== "1.4.2") process.exit(1)'
+node -e 'if (require("/opt/sonar-scanner/node_modules/node-forge/package.json").version !== "1.4.3") process.exit(1)'
 checkov --version
 clamscan --version
 """,

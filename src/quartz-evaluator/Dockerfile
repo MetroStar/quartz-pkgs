@@ -800,6 +800,28 @@ replace(
 )
 PY
 
+RUN python3 - <<'PY'
+from pathlib import Path
+path = Path("/app/scripts/shell/run-target-security-scan.sh")
+source = path.read_text()
+for script, report in (
+    ("enrich-findings.sh", "nvd-enrichment-status.json"),
+    ("enrich-findings-multi-feed.sh", "multi-feed-enrichment-status.json"),
+):
+    original = f'if [[ -f "$SCRIPT_DIR/{script}" ]]; then'
+    assert source.count(original) == 1, f"Unexpected enrichment entry point: {script}"
+    replacement = (
+        'if [[ "${EPYON_SKIP_ENRICHMENT:-false}" == "true" ]]; then\n'
+        f'    echo "[INFO] Skipping optional {script} (EPYON_SKIP_ENRICHMENT=true)"\n'
+        "    printf '%s\\n' "
+        """'{"status":"skipped","reason":"EPYON_SKIP_ENRICHMENT=true; scanner findings retained"}' """
+        f'> "$SCAN_DIR/{report}"\n'
+        f'elif [[ -f "$SCRIPT_DIR/{script}" ]]; then'
+    )
+    source = source.replace(original, replacement)
+path.write_text(source)
+PY
+
 RUN chown -R 1000:1000 /app && \
     (getent group 1000 >/dev/null || echo 'quartz-evaluator:x:1000:' >> /etc/group) && \
     (getent passwd 1000 >/dev/null || echo 'quartz-evaluator:x:1000:1000:Quartz Evaluator:/tmp:/sbin/nologin' >> /etc/passwd) && \
@@ -817,6 +839,7 @@ WORKDIR /app
 ENV HOST=0.0.0.0
 ENV PORT=8056
 ENV EPYON_SCANS_DIR=/data/scans
+ENV EPYON_ENRICHMENT_POLICY_VERSION=1
 
 EXPOSE 8056
 

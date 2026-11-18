@@ -93,6 +93,42 @@ class EvaluatorRuntimeTests(unittest.TestCase):
                 result = subprocess.run(command, capture_output=True, text=True, timeout=30)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_optional_enrichment_skip_is_explicit_and_preserves_findings(self):
+        source = (SCRIPTS / "run-target-security-scan.sh").read_text()
+        start = 'if [[ "${EPYON_SKIP_ENRICHMENT:-false}" == "true" ]]; then'
+        blocks = source.split(start)[1:]
+        self.assertEqual(len(blocks), 2)
+        harness = "\n".join(start + block.split("\nfi", 1)[0] + "\nfi" for block in blocks)
+        tools = self.root / "enrichment-tools"
+        tools.mkdir()
+        for script in ("enrich-findings.sh", "enrich-findings-multi-feed.sh"):
+            path = tools / script
+            path.write_text('#!/bin/sh\nprintf "%s\\n" "$0" >> "$SCAN_DIR/calls"\n')
+            path.chmod(0o755)
+        for setting in (None, "false", "true"):
+            scan = self.root / f"enrichment-{setting}"
+            scan.mkdir()
+            findings = scan / "security-findings-summary.json"
+            original = '{"findings":[{"severity":"critical","id":"fixture"}]}'
+            findings.write_text(original)
+            environment = dict(os.environ, SCAN_DIR=str(scan), SCRIPT_DIR=str(tools), YELLOW="", NC="")
+            environment.pop("EPYON_SKIP_ENRICHMENT", None)
+            if setting is not None:
+                environment["EPYON_SKIP_ENRICHMENT"] = setting
+            result = subprocess.run(["bash", "-eu", "-c", harness], env=environment,
+                                    capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(findings.read_text(), original)
+            if setting == "true":
+                self.assertFalse((scan / "calls").exists())
+                for name in ("nvd-enrichment-status.json", "multi-feed-enrichment-status.json"):
+                    report = json.loads((scan / name).read_text())
+                    self.assertEqual(report["status"], "skipped")
+                    self.assertIn("EPYON_SKIP_ENRICHMENT=true", report["reason"])
+            else:
+                self.assertEqual(len((scan / "calls").read_text().splitlines()), 2)
+                self.assertFalse((scan / "nvd-enrichment-status.json").exists())
+
     def test_native_api_discovery_preserves_numeric_counts(self):
         cases = {
             "python-openapi": ({
